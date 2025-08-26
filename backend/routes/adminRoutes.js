@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { addsubadmin, getAllAdmins, deleteAdmin, getAdminName, editSubAdmin } = require('../controllers/addSubAdminController');
-const { verifyToken, isSuperAdmin } = require('../middleware/authMiddleware');
+const { verifyToken, isSuperAdmin } = require('../middleware/authmiddleware');
 const { changeAdminPassword, getDashboardStats } = require('../controllers/adminController');
 const { EditUser, updateCaptchaSettings } = require('../controllers/EditUserController')
 
