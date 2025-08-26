@@ -1,0 +1,113 @@
+.myheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 100%;
+    height: 70px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+.logo {
+    width: 250px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+    transition: transform 0.2s ease;
+}
+
+.profile:hover {
+    transform: scale(1.1);
+}
+
+.inheader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.inheader p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.2;
+}
+
+.inheader span {
+    font-size: 12px;
+    color: #777;
+}
+
+/* Dropdown styling */
+.simple-dropdown {
+    position: absolute;
+    background: #fff;
+    top: 60px;
+    right: 0;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.simple-dropdown div {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.simple-dropdown div:hover {
+    background: #f5f5f5;
+}
+
+@media (max-width: 450px) {
+    .logo {
+        width: 40px !important;
+        height: 40px;
+
+    }
+
+    .myheader {
+        height: 60px !important;
+        padding: 0 10px;
+    }
+
+    .profile {
+        width: 35px !important;
+        height: 35px !important;
+    }
+
+    .inheader {
+        flex-direction: row-reverse;
+        gap: 8px;
+    }
+
+    .inheader p {
+        font-size: 12px;
+    }
+
+    .simple-dropdown {
+        top: 50px;
+        right: 0;
+    }
+}

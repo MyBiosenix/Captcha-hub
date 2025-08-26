@@ -1,0 +1,59 @@
+.myside{
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    padding: 10px 20px;
+}
+.sidediv{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: -10px;
+    cursor: pointer;
+}
+.sidediv:hover{
+    color: blue;
+}
+.sidediv.active {
+    color: blue;
+}
+.sidediv p{
+    font-size: 20px;
+}
+.myicon{
+    font-size: 20px;
+}
+/* Hide sidebar normally */
+.mobile-sidebar {
+  position: fixed;
+  top: 60px;
+  left: -260px; /* hidden off screen */
+  width: 240px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  z-index: 200;
+  transition: left 0.3s ease;
+  padding-top: 70px; /* so it appears below header */
+}
+
+.mobile-sidebar.open {
+  left: 0; /* slides in */
+}
+
+.menu-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+@media (min-width: 451px) {
+  .mobile-sidebar {
+    display: none;
+  }
+}
+@media (max-width: 450px){
+    .myside{
+        display: none;
+        margin-top: -80px;
+    }
+    
+}

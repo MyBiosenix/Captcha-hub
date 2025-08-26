@@ -1,0 +1,66 @@
+.myside {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 20px;
+}
+
+.sidediv {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidediv:hover {
+  color: blue;
+}
+
+.sidediv p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.myicon {
+  font-size: 18px;
+}
+
+.chevron {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+/* Dropdown container */
+.dropdown-wrapper {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin-left: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dropdown-wrapper.show {
+  max-height: 200px;
+  opacity: 1;
+  margin-top: -8px;
+}
+
+/* Dropdown items */
+.sub-item {
+  font-size: 14px;
+  color: gray;
+  cursor: pointer;
+  padding: 5px 0 5px 5px;
+  transition: color 0.2s;
+  text-align: left;
+}
+
+.sub-item:hover {
+  color: black;
+  font-weight: 500;
+}

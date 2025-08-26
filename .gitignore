@@ -1,0 +1,11 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# ignore all node_modules everywhere
+**/node_modules
