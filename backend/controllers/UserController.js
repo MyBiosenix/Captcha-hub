@@ -3,80 +3,102 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT, 
-    secure: false, 
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
+async function sendAccountEmail(userEmail, subject, text, html) {
+  try {
+    const mailOptions = {
+      from: `"Captcha Hub" <${process.env.EMAIL_USER}>`,
+      to: userEmail,
+      cc: process.env.ADMIN_EMAIL,
+      subject,
+      text,
+      html, 
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Mail sent:", info.messageId);
+  } catch (error) {
+    console.error("❌ Mail error:", error);
+  }
+}
+
+
 const addUser = async (req, res) => {
-    try {
-        const { name, email, mobile, admin, package, price, paymentmode } = req.body;
-        const plainPassword = getRandomPassword(5);
+  try {
+    const { name, email, mobile, admin, package, price, paymentmode, validTill } = req.body;
+    const plainPassword = getRandomPassword(5);
 
-        const existing = await User.findOne({ email });
-        if (existing) {
-            return res.status(400).json({ message: 'User Already Exists' });
-        }
-
-        const newUser = await User.create({
-            name,
-            email,
-            mobile,
-            admin,
-            package,
-            price,
-            paymentmode,
-            password: plainPassword
-        });
-
-        const mailOptions = {
-            from: `"Capcha-Hub" <${process.env.SMTP_FROM}>`,
-            to: email,
-            subject: 'Your Account Details - ',
-            html: `
-                <h2>Welcome, ${name}!</h2>
-                <p>Your account has been created successfully.</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Password:</strong> ${plainPassword}</p>
-                <p>You can log in here: 
-                    <a href="http://localhost:5173/citizen/login">Login Now</a>
-                </p>
-                <p>Please change your password after logging in.</p>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({
-            message: "User Created Successfully & Email Sent",
-            user: {
-                _id: newUser.id,
-                name: newUser.name,
-                mobile: newUser.mobile,
-                admin: newUser.admin,
-                package: newUser.package,
-                paymentmode: newUser.paymentmode,
-                password: plainPassword
-            }
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'User Already Exists' });
     }
+
+    const newUser = await User.create({
+      name,
+      email,
+      mobile,
+      admin,
+      package,
+      price,
+      paymentmode,
+      password: plainPassword,
+      validTill: new Date(validTill)
+    });
+
+    await sendAccountEmail(
+      email,
+      "Your Account Details - Captcha Hub",
+      `Your account has been created.\nEmail: ${email}\nPassword: ${plainPassword}`,
+      `
+        <h2>Welcome, ${name}!</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${plainPassword}</p>
+        <p>You can log in here: 
+            <a href="http://localhost:5173/citizen/login">Login Now</a>
+        </p>
+        <p>Please change your password after logging in.</p>
+      `
+    ).catch(err => console.error("Failed to send email:", err));
+
+    res.status(200).json({
+      message: "User Created Successfully & Email Sent",
+      user: {
+        _id: newUser.id,
+        name: newUser.name,
+        mobile: newUser.mobile,
+        admin: newUser.admin,
+        package: newUser.package,
+        paymentmode: newUser.paymentmode,
+        password: plainPassword,
+        validTill: newUser.validTill
+      }
+    });
+
+  } catch (err) {
+    console.error("Error while adding user:", err);
+    res.status(500).json({ message: err.message });
+  }
 };
 
+
 function getRandomPassword(length = 8) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return password;
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
 }
+
 
 const getAllUsers = async (req, res) => {
     try {
@@ -100,7 +122,7 @@ const deleteUser = async (req, res) => {
 const edituser = async(req,res) => {
     try{
     const { id } = req.params;
-    const { name, email, mobile, admin, package, price, paymentmode} = req.body;
+    const { name, email, mobile, admin, package, price, paymentmode,validTill} = req.body;
 
     const user = await User.findById(id);
     if(!user){
@@ -117,6 +139,7 @@ const edituser = async(req,res) => {
     user.package = package;
     user.price = price;
     user.paymentmode = paymentmode;
+    user.validTill = new Date(validTill);
 
     await user.save();
     res.json({message:"User Updated Succesfully"});

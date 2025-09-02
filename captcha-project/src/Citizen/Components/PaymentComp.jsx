@@ -9,17 +9,23 @@ function PaymentComp() {
   const [totalCaptcha, setTotalCaptcha] = useState(0);
 
   const fetchPayments = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/all-reqs', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPayments(res.data);
-    } catch (err) {
-      console.error(err.message);
-      alert('Error Fetching Payments');
+  const token = localStorage.getItem("token");
+  try {
+    const res = await axios.get("http://localhost:5035/api/auth/user/user-reqs", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (Array.isArray(res.data)) {
+      setPayments(res.data); 
+    } else {
+      setPayments([]); 
     }
-  };
+  } catch (err) {
+    console.error("Error fetching payments:", err.message);
+    alert("Server error while fetching payments");
+  }
+};
+
   const fetchStats = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -32,21 +38,6 @@ function PaymentComp() {
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
-    }
-  };
-
-  const handleDeletePayment = async (id) => {
-    const token = localStorage.getItem('token');
-    if (window.confirm('Are you sure you want to delete this Payment Request?')) {
-      try {
-        await axios.delete(`http://localhost:5035/api/auth/user/pay/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchPayments();
-      } catch (err) {
-        console.error(err.message);
-        alert('Error Deleting Payment Request');
-      }
     }
   };
 
@@ -80,12 +71,6 @@ function PaymentComp() {
         </div>
 
         <div className='printform'>
-          <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
-          </div>
           <div className='search'>
             <input type='text' placeholder='Search' />
           </div>
@@ -103,7 +88,6 @@ function PaymentComp() {
                 <th>Payment Mode</th>
                 <th>Payment Status</th>
                 <th>Payment Date / Time</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -120,19 +104,6 @@ function PaymentComp() {
                       {p.paymentDate
                         ? `${new Date(p.paymentDate).toLocaleDateString()} ${p.paymentTime || ''}`
                         : '-'}
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => navigate(`/citizen/edit-payment/${p._id}`)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeletePayment(p._id)}
-                        style={{ marginLeft: '5px', backgroundColor: 'red', color: '#fff' }}
-                      >
-                        Delete
-                      </button>
                     </td>
                   </tr>
                 ))

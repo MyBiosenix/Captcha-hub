@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import * as XLSX from "xlsx";       // 📊 Excel
+import jsPDF from "jspdf";          // 📄 PDF
+import autoTable from "jspdf-autotable";  // 📝 Table for PDF
 
 function AUserComp() {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
 
   const fetchActiveUsers = async () => {
     const token = localStorage.getItem('token');
@@ -24,6 +28,62 @@ function AUserComp() {
     fetchActiveUsers();
   }, []);
 
+  // 🔹 Filter users by searchTerm
+  const filteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 🔹 Pagination Logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  // 📊 Export to Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredUsers.map((u, i) => ({
+      "Sr. No.": i + 1,
+      "Name": u.name,
+      "Email Id": u.email,
+      "Status": u.isActive ? "Active" : "Inactive"
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Active Users");
+    XLSX.writeFile(workbook, "ActiveUsersList.xlsx");
+  };
+
+  // 📄 Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Active Users List", 14, 15);
+
+    const tableColumn = ["Sr. No.", "Name", "Email Id", "Status"];
+    const tableRows = [];
+
+    filteredUsers.forEach((u, i) => {
+      tableRows.push([
+        i + 1,
+        u.name,
+        u.email,
+        u.isActive ? "Active" : "Inactive"
+      ]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("ActiveUsersList.pdf");
+  };
+
   return (
     <div className='mypayments'>
       <div className='payment-header'>
@@ -38,13 +98,19 @@ function AUserComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{ cursor: "pointer" }}>Excel</p>
+            <p onClick={exportToPDF} style={{ cursor: "pointer" }}>PDF</p>
           </div>
           <div className='search'>
-            <input type='text' placeholder='Search' />
+            <input 
+              type='text' 
+              placeholder='Search by name or email' 
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // reset to page 1 when searching
+              }} 
+            />
           </div>
         </div>
 
@@ -59,10 +125,10 @@ function AUserComp() {
               </tr>
             </thead>
             <tbody>
-              {users.length > 0 ? (
-                users.map((u, index) => (
+              {currentUsers.length > 0 ? (
+                currentUsers.map((u, index) => (
                   <tr key={u._id}>
-                    <td>{index + 1}</td>
+                    <td>{indexOfFirstUser + index + 1}</td>
                     <td>{u.name}</td>
                     <td>{u.email}</td>
                     <td>
@@ -76,16 +142,19 @@ function AUserComp() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }}>No users found</td>
+                  <td colSpan="4" style={{ textAlign: "center" }}>No users found</td>
                 </tr>
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
           <div className='pagination'>
-            <button>{'«'}</button>
-            <button>{'‹'}</button>
-            <button>{'›'}</button>
-            <button>{'»'}</button>
+            <button onClick={() => goToPage(1)} disabled={currentPage === 1}>{'«'}</button>
+            <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>{'‹'}</button>
+            <span> Page {currentPage} of {totalPages} </span>
+            <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>{'›'}</button>
+            <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages}>{'»'}</button>
           </div>
         </div>
       </div>

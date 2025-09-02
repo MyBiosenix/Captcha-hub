@@ -3,17 +3,18 @@ import logo from '../../assets/logo.png'
 import '../CSSFiles/login.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👁️ imported
 
 function AdminLogin() {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // 👁️ toggle state
 
     const navigate = useNavigate();
 
     const handleLogin = async(e) => {
-
       e.preventDefault();
 
       setEmailError('');
@@ -26,7 +27,7 @@ function AdminLogin() {
         setEmailError('Invalid Email Address');
         valid = false;
       }
-      if(password.length<5){
+      if(password.length < 5){
         setPasswordError('Invalid Password');
         valid = false;
       }
@@ -58,9 +59,37 @@ function AdminLogin() {
         <img src={logo} alt='Logo'/>
         <div className='in-login1'>
             <h3>Admin Login</h3>
-            <input type='email' placeholder='Enter Email Id' value={email} onChange={(e) => setEmail(e.target.value)} required/>
+            <div className='in-input1'>
+              <p>Email Id:</p>
+              <input 
+                type='email' 
+                placeholder='Enter Email Id' 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required
+              />
+            </div>
             {emailError && <p className='error'>{emailError}</p>}
-            <input type='password' placeholder='Enter Password' value={password} onChange={(e) => setPassword(e.target.value)} required/>
+
+            {/* Password Input with Eye Toggle */}
+            <div className='in-input password-field1'>
+              <p>Password:</p>
+              <div className="password-input-wrapper1">
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  placeholder='Enter Password' 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required
+                />
+                <span 
+                  className="toggle-password1"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+            </div>
             {passwordError && <p className='error'>{passwordError}</p>}
         </div>
         <div className='mybtn11'>

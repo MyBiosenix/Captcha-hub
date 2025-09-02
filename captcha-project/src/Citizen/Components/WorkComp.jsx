@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../CSSFiles/work.css';
 import { FaSyncAlt } from 'react-icons/fa';
 import axios from 'axios';
@@ -7,6 +9,7 @@ function WorkComp() {
   const [captchaSVG, setCaptchaSVG] = useState('');
   const [captchaId, setCaptchaId] = useState('');
   const [answer, setAnswer] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
   const [stats, setStats] = useState({
     totalEarnings: 0,
     rightCaptcha: 0,
@@ -17,7 +20,7 @@ function WorkComp() {
   const [loading, setLoading] = useState(false);
   const [difficultyLevel, setDifficultyLevel] = useState(1);
 
-  const [refreshCount, setRefreshCount] = useState(0); // track refresh usage
+  const [refreshCount, setRefreshCount] = useState(0); 
 
   const token = localStorage.getItem('token');
 
@@ -48,7 +51,6 @@ function WorkComp() {
           setDifficultyLevel(newLevel);
         }
 
-        // Reset refresh count when user crosses into a new 100 range
         const hundredBlock = Math.floor(data.totalCaptcha / 100);
         if (refreshCount > 0 && data.totalCaptcha % 100 === 0) {
           setRefreshCount(0);
@@ -70,20 +72,24 @@ function WorkComp() {
 
 
   const fetchCaptcha = async () => {
-    try {
-      const { data } = await axios.get(
-        `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
-        authHeader
-      );
-      setCaptchaSVG(data.svg);
-      setCaptchaId(data.id);
-      setAnswer('');
-      setMsg('');
-    } catch (err) {
-      handleDeactivated(err);
-      console.error('Error fetching captcha:', err);
-    }
-  };
+  try {
+    setCaptchaLoading(true); // show loader
+    const { data } = await axios.get(
+      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      authHeader
+    );
+    setCaptchaSVG(data.svg);
+    setCaptchaId(data.id);
+    setAnswer('');
+    setMsg('');
+  } catch (err) {
+    handleDeactivated(err);
+    console.error('Error fetching captcha:', err);
+  } finally {
+    setCaptchaLoading(false); // hide loader after fetching
+  }
+};
+
 
   const submitCaptcha = async () => {
     const cleaned = answer.trim();
@@ -103,8 +109,16 @@ function WorkComp() {
       );
 
       if (data.stats) setStats(data.stats);
-      if (data.message) setMsg(data.message);
 
+      if (typeof data.success !== "undefined") {
+        if (data.success) {
+          toast.success("Correct Captcha Entered!", { autoClose: 3000 });
+        } else {
+          toast.error("The Captcha is incorrect!", { autoClose: 3000 });
+        }
+      } else if (data.message) {
+        toast.info(data.message, { autoClose: 3000 });
+      }
       const sleepTime = getSleepTime(data.stats?.totalCaptcha || stats.totalCaptcha);
 
       setTimeout(() => {
@@ -116,11 +130,11 @@ function WorkComp() {
       handleDeactivated(err);
       console.error('Error verifying captcha:', err);
       setMsg('Something went wrong. Try again.');
+      toast.error("Something went wrong. Try again.", { autoClose: 3000 });
       setLoading(false);
     }
   };
 
-  // Handle refresh with limitation
   const handleRefresh = () => {
     const hundredBlock = Math.floor(stats.totalCaptcha / 100);
     if (refreshCount < 2) {
@@ -132,10 +146,23 @@ function WorkComp() {
   };
 
   useEffect(() => {
-    fetchStats();
+  const init = async () => {
+    await fetchStats();   // updates difficultyLevel
+    fetchCaptcha();       // fetch captcha once after stats are loaded
+  };
+  init();
+}, []);
+
+
+/*
+  useEffect(() => {
     fetchCaptcha();
   }, [difficultyLevel]);
 
+    useEffect(() => {
+    fetchStats();
+  },[]);
+*/
   return (
     <div className='workcomp'>
       <div className='inworkcomp'>
@@ -156,51 +183,62 @@ function WorkComp() {
         </div>
 
         <div className='captcha'>
-          {loading ? (
-            <div className="loader">Loading next captcha...</div>
-          ) : (
-            <>
-              {captchaSVG && (
-                <div
-                  className="captcha-box"
-                  dangerouslySetInnerHTML={{ __html: captchaSVG }}
-                  onCopy={(e) => e.preventDefault()}
-                  onCut={(e) => e.preventDefault()}
-                  onPaste={(e) => e.preventDefault()}
-                  onContextMenu={(e) => e.preventDefault()}
-                  onDragStart={(e) => e.preventDefault()}
-                />
-              )}
-              <FaSyncAlt
-                style={{
-                  cursor: refreshCount < 2 ? 'pointer' : 'not-allowed',
-                  color: refreshCount < 2 ? 'black' : 'gray'
-                }}
-                onClick={refreshCount < 2 ? handleRefresh : null}
-                title='Refresh captcha'
-              />
-              <input
-                type="text"
-                placeholder="Enter Captcha"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submitCaptcha()}
-                disabled={loading}
-                onCopy={(e) => e.preventDefault()}
-                onCut={(e) => e.preventDefault()}
-                onPaste={(e) => e.preventDefault()}
-                onContextMenu={(e) => e.preventDefault()}
-                onDragStart={(e) => e.preventDefault()}
-              />
-              <button onClick={submitCaptcha} disabled={loading}>
-                Submit
-              </button>
-              {msg && <p style={{ marginTop: 8 }}>{msg}</p>}
-            </>
-          )}
-        </div>
+  {loading ? (
+    <div className="loader">Verifying...</div>
+  ) : captchaLoading ? (
+    <div className="loader">Loading captcha...</div>
+  ) : (
+    <>
+      {captchaSVG && (
+        <div
+          className="captcha-box"
+          dangerouslySetInnerHTML={{ __html: captchaSVG }}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          onPaste={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+        />
+      )}
+      <FaSyncAlt
+        style={{
+          cursor: refreshCount < 2 ? 'pointer' : 'not-allowed',
+          color: refreshCount < 2 ? 'black' : 'gray'
+        }}
+        onClick={refreshCount < 2 ? handleRefresh : null}
+        title='Refresh captcha'
+      />
+      <input
+        type="text"
+        placeholder="Enter Captcha"
+        value={answer}
+        onChange={(e) => setAnswer(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && submitCaptcha()}
+        disabled={loading || captchaLoading}
+      />
+      <button onClick={submitCaptcha} disabled={loading || captchaLoading}>
+        Submit
+      </button>
+    </>
+  )}
+</div>
+
       </div>
+      <ToastContainer
+  position="top-right"
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop={true}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  theme="colored"
+/>
+
     </div>
+    
   );
 }
 

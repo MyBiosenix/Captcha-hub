@@ -28,10 +28,12 @@ function UserFormComp() {
   const [adminsList, setAdminsList] = useState([]);
   const [packagesList, setPackagesList] = useState([]);
 
+  const [validTill, setValidTill] = useState('');
+
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   useEffect(() => {
-    // Prefill form if editing
+
     if (userToEdit) {
       setName(userToEdit.name || '');
       setEmail(userToEdit.email || '');
@@ -40,6 +42,7 @@ function UserFormComp() {
       setAdmin(userToEdit.admin || '');
       setPackageType(userToEdit.package || '');
       setPaymentMode(userToEdit.paymentmode || '');
+      setValidTill(userToEdit.validTill?.split("T")[0] || '');
     }
   }, [userToEdit]);
 
@@ -100,6 +103,7 @@ function UserFormComp() {
             package: packageType,
             price: Number(price),
             paymentmode: paymentMode,
+            validTill
           }
         );
         alert('User Updated Successfully');
@@ -113,6 +117,7 @@ function UserFormComp() {
           package: packageType,
           price: Number(price),
           paymentmode: paymentMode,
+          validTill
         });
         alert('User Created Successfully');
       }
@@ -125,6 +130,7 @@ function UserFormComp() {
       setAdmin('');
       setPackageType('');
       setPaymentMode('');
+      setValidTill('')
 
       navigate('/admin/manage-user');
     } catch (err) {
@@ -232,6 +238,15 @@ function UserFormComp() {
               <option value='gpay'>GooglePay</option>
               <option value='phonepe'>PhonePe</option>
             </select>
+            <div>
+              <input
+                type="date"
+                value={validTill}
+                onChange={(e) => setValidTill(e.target.value)}
+                required
+              />
+            </div>
+
           </div>
         </div>
 

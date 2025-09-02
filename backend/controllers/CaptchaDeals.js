@@ -186,15 +186,24 @@ exports.verifyCaptcha = async (req, res) => {
 exports.getMyStats = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "totalCaptcha rightCaptcha wrongCaptcha totalEarnings"
+      "totalCaptcha rightCaptcha wrongCaptcha totalEarnings validTill"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json(user);
+    res.json({
+      totalCaptcha: user.totalCaptcha || 0,
+      rightCaptcha: user.rightCaptcha || 0,
+      wrongCaptcha: user.wrongCaptcha || 0,
+      totalEarnings: user.totalEarnings || 0,
+      validTill: user.validTill ? user.validTill.toISOString() : null, // 👈 force ISO string
+    });
   } catch (e) {
+    console.error("getMyStats error:", e.message);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 exports.cleanupExpiredCaptchas = async () => {
   const expirationTime = 2 * 60 * 1000;

@@ -3,23 +3,39 @@ import '../CSSFiles/header.css';
 import logo from '../../assets/logo.png';
 import mobilelogo from '../../assets/mobilelogo.png';
 import profile from '../../assets/profile.png';
-import { FiMenu } from 'react-icons/fi';   // <- hamburger icon
+import { FiMenu } from 'react-icons/fi';   
 import { useNavigate } from 'react-router-dom';
-import SideBar from './SideBar'; // <- import sidebar
+import SideBar from './SideBar'; 
+import axios from 'axios'
 
 function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userName, setUserName] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 450);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // <- state for sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false); 
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/citizen/login');
-  };
+  const handleLogout = async () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      await axios.post(
+        'http://localhost:5035/api/citizen/logout',
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.log("Logout error:", err.response?.data || err.message);
+    }
+  }
+
+  // Only clear after request is done
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  navigate('/citizen/login');
+};
+
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -39,16 +55,22 @@ function Header() {
       <div className='myheader'>
         {isMobile && (
           <FiMenu
-            className='menu-icon'
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          />
+          className='menu-icon'
+          onClick={() => {
+            setShowDropdown(false);           
+            setSidebarOpen(prev => !prev);     
+          }}
+        />
         )}
 
         <img src={isMobile ? mobilelogo : logo} alt='Logo' className='logo' />
 
         <div
           className='inheader'
-          onClick={() => setShowDropdown(!showDropdown)}
+          onClick={() => {
+            if (isMobile) setSidebarOpen(false); 
+            setShowDropdown((prev) => !prev);   
+          }}
         >
           <img src={profile} alt='Profile' className='profile' />
           <p>{userName}<br /><span>Citizen</span></p>
@@ -62,7 +84,6 @@ function Header() {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
       {isMobile && (
         <div className={`mobile-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <SideBar />

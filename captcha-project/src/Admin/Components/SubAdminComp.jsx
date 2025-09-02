@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from "xlsx";         // 📊 Excel
+import jsPDF from "jspdf";            // 📄 PDF
+import autoTable from "jspdf-autotable"; 
 
 function SubAdminComp() {
   const [admins, setAdmins] = useState([]);
@@ -57,6 +60,43 @@ function SubAdminComp() {
     }
   };
 
+  // 🔹 Export Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(admins.map((a, i) => ({
+      "Sr. No.": i + 1,
+      "Name": a.name,
+      "User Type": a.role,
+      "Email Id": a.email,
+      "Password": a.password
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "SubAdmins");
+    XLSX.writeFile(workbook, "SubAdmins.xlsx");
+  };
+
+  // 🔹 Export PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Sub Admin List", 14, 15);
+
+    const tableColumn = ["Sr. No.", "Name", "User Type", "Email Id", "Password"];
+    const tableRows = [];
+
+    admins.forEach((a, i) => {
+      tableRows.push([i + 1, a.name, a.role, a.email, a.password]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("SubAdmins.pdf");
+  };
+
+
   const filteredAdmins = admins.filter(a =>
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,10 +129,8 @@ function SubAdminComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{cursor: "pointer"}}>Excel</p>
+            <p onClick={exportToPDF} style={{cursor: "pointer"}}>PDF</p>
           </div>
           <div className='search'>
             <input

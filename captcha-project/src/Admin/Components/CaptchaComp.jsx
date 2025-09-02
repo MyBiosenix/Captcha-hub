@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import '../../Citizen/CSSFiles/payment.css'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios';
+import axios from 'axios'
+import * as XLSX from "xlsx";       // 📊 Excel
+import jsPDF from "jspdf";          // 📄 PDF
+import autoTable from "jspdf-autotable";  // 📝 Table for PDF
 
 function CaptchaComp() {
   const navigate = useNavigate();
   const [captchas, setCaptchas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); // 🔹 Search state
+  const [searchTerm, setSearchTerm] = useState(""); 
   const itemsPerPage = 5;
 
   const token = localStorage.getItem('token');
@@ -67,6 +70,39 @@ function CaptchaComp() {
     }
   };
 
+  // 🔹 Export Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredCaptchas.map((c, i) => ({
+      "Sr. No.": i + 1,
+      "Captcha Type": c.captcha
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Captchas");
+    XLSX.writeFile(workbook, "CaptchaTypes.xlsx");
+  };
+
+  // 🔹 Export PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Captcha Type List", 14, 15);
+
+    const tableColumn = ["Sr. No.", "Captcha Type"];
+    const tableRows = [];
+
+    filteredCaptchas.forEach((c, i) => {
+      tableRows.push([i + 1, c.captcha]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("CaptchaTypes.pdf");
+  };
+
   return (
     <div className='mypayments'>
       <div className='payment-header'>
@@ -84,13 +120,10 @@ function CaptchaComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{ cursor: "pointer" }}>Excel</p>
+            <p onClick={exportToPDF} style={{ cursor: "pointer" }}>PDF</p>
           </div>
           <div className='search'>
-
             <input 
               type='text' 
               placeholder='Search by captcha type'

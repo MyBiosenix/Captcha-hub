@@ -79,6 +79,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ["auto", "manual"],
         default: "auto"
+    },
+    validTill: {
+        type: Date,
+        required: true
+    },
+    activeToken: {
+        type: String,
+        default: null,
     }
 });
 

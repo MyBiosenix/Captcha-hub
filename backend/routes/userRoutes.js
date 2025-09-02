@@ -1,10 +1,9 @@
-// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 
 const { addUser, getAllUsers, deleteUser, edituser, activateUser, DeActivateUser, getInactiveUsers, getActiveUsers, changeUserPass} = require('../controllers/UserController');
 const { generateCaptcha, verifyCaptcha, getMyStats } = require('../controllers/CaptchaDeals');
-const { mypayment,getAllRequests,deletereqs } = require('../controllers/paymentController')
+const { mypayment,getAllRequests,getUserPaymentRequests,deletereqs } = require('../controllers/paymentController')
 const { checkActiveUser } = require('../middleware/checkActiveUser');
 const { verifyUserToken } = require('../middleware/userAuth');
 
@@ -25,6 +24,7 @@ router.get("/stats", verifyUserToken,checkActiveUser, getMyStats);
 
 router.post('/create-payment-req', mypayment);
 router.get('/all-reqs',getAllRequests);
+router.get('/user-reqs', verifyUserToken,getUserPaymentRequests);
 router.delete('/pay/:id',deletereqs);
 
 module.exports = router;

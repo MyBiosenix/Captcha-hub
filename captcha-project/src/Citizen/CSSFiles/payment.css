@@ -129,6 +129,7 @@
     justify-content: flex-start;
     gap: 8px;
     padding-top: 10px;
+    padding-bottom: 15px;
 }
 
 .pagination button {
@@ -191,10 +192,9 @@
   .table-container {
     overflow-x: auto;
     border-radius: 8px;
-    -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* custom scrollbar */
   .table-container::-webkit-scrollbar {
     height: 8px;
   }

@@ -81,33 +81,49 @@
 }
 
 @media (max-width: 450px) {
-    .logo {
-        width: 40px !important;
-        height: 40px;
-
-    }
-
     .myheader {
         height: 60px !important;
-        padding: 0 10px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo {
+        width: 45px !important;
+        height: 45px !important;
+        object-fit: contain;
+        margin-left: 30px;
+    }
+
+    .menu-icon {
+        font-size: 26px;
+        cursor: pointer;
+        margin-left: -10px;
+        
     }
 
     .profile {
-        width: 35px !important;
-        height: 35px !important;
+        width: 32px !important;
+        height: 32px !important;
     }
 
     .inheader {
+        display: flex;
         flex-direction: row-reverse;
-        gap: 8px;
+        align-items: center;
+        gap: 3px;
+        margin-right: -10px;
+        
     }
 
     .inheader p {
         font-size: 12px;
+        line-height: 1.2;
+        text-align: right;
     }
 
     .simple-dropdown {
-        top: 50px;
+        top: 48px;
         right: 0;
     }
 }

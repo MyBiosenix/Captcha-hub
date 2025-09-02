@@ -31,6 +31,7 @@
     display: flex;
     justify-content: space-between;
     gap: 40px;
+    
 }
 .icontexts {
   display: flex;
@@ -38,7 +39,6 @@
   justify-content: flex-start; 
   gap: 16px;
   width: 100%;
-  min-height: 120px;
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
@@ -58,6 +58,7 @@
 .four {
   font-size: 32px;
   padding: 10px;
+  display: flex;
   border-radius: 50%;
   background-color: #f3f3f3;
 }
@@ -82,7 +83,6 @@
 .mydoit{
     display: flex;
     flex-direction: column;
-    
     align-items: center;
     justify-content: center;
 }
@@ -97,36 +97,65 @@
 
 
 
-/* 📱 Mobile layout */
 @media (max-width: 450px) {
   .mydashboard {
+    width: 100%;
+    background-color: white !important;
+    height: 700px;
+  }
+
+  .indashboard {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 16px; /* Add space between cards */
+  }
+
+  .mindash {
     display: flex;
     flex-direction: column;
     align-items: center;
-
   }
-  .mydashboard h2{
-    display: none;
-  }
-  .indashboard {
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
-    width: 90%;   
-    margin-top: 112px; 
-    margin-bottom: 10px;
+  .mindash h2{
+    margin-bottom: 30px;
   }
 
   .icontexts {
-    width: 80%;       
-    height: 10%;
-    margin-top: -80px;
+    width: 90% !important;
+    padding: 16px !important;
+    gap: 12px !important;
+    height: auto !important;
+    min-height: 80px !important;
+    flex-direction: row !important; /* Make sure icon stays on left */
+    align-items: center !important;
+    justify-content: flex-start !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-top: -20px 
+  }
+
+  .one,
+  .two,
+  .three,
+  .four {
+    font-size: 36px !important;
+    padding: 10px !important;
+  }
+
+  .mydoit {
+    align-items: flex-start !important;
+    margin-top: 20px;
   }
 
   .mydoit h4 {
-    font-size: 16px;
+    font-size: 18px !important;
+    margin: 0;
+    line-height: 1.2;
   }
+
   .mydoit h3 {
-    font-size: 20px;
+    font-size: 20px !important;
+    margin-top: 4px !important;
+    font-weight: bold;
+    color: green; /* Match the green color shown */
   }
 }

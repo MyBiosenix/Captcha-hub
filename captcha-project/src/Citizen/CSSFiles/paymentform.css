@@ -150,7 +150,10 @@ textarea {
   color: black; 
   border: 1px solid green;
 }
-
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0; /* hide default */
+  cursor: pointer;
+}
 @media (max-width: 768px) {
   .in-formcomp {
     display: block;
@@ -166,7 +169,7 @@ textarea {
     width: 100%;          
     margin: 0 auto;       
     background-color: white;
-    align-items: center;   
+    align-items: center;
     justify-content: center;
     padding: 16px;
     box-sizing: border-box;

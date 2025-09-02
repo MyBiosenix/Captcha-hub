@@ -5,7 +5,7 @@
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    background: url('../../assets/clogin2.jpg');
+    background: url('../../assets/baca1.jpeg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -19,10 +19,10 @@
     /*backdrop-filter: blur(10px);         
     -webkit-backdrop-filter: blur(10px);*/
     padding: 20px 40px;
-    border-radius: 5px;
+    border-radius: 25px;
     box-shadow: 2px 2px 6px black;
     width: 25%;
-    height: 60%;
+    height: 80%;
 }
 .login img{
     width: 70%;
@@ -41,15 +41,29 @@
     font-size: 25px;
     text-decoration: underline;
 }
-.in-login input{
-    height: 40px;
-    padding: 2px 8px;
-    color: black;
-    width: 100%;
-    font-size: 15px;
-    border-radius: 5px;
-    border: 0.2px solid pink;
-    background-color: white;
+.in-input {
+  display: flex;
+  flex-direction: column;
+  gap: 3px; 
+  width: 100%;
+}
+.in-input p{
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+
+.in-input input {
+  height: 40px;
+  padding: 2px 8px;
+  color: black;
+  width: 100%;
+  font-size: 15px;
+  border-radius: 5px;
+  border: 0.2px solid pink;
+  background-color: white;
+  margin-top: 0; /* remove -13px */
 }
 .mybtn1{
     width: 100%;
@@ -68,12 +82,33 @@
     justify-content: center;
     text-align: center;
     padding: 10px 20px;
+    background-color: blue;
+}
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* space for eye icon */
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 58%;
+  right: 10px;
+  transform: translateY(-50%); 
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
 }
 
 @media (max-width: 450px) {
   .login {
-    width: 80%;   /* Take almost full width */
-    height: auto; /* Adjust height automatically */
+    width: 80%;   
+    height: auto; 
     padding: 15px 20px;
   }
 
@@ -86,8 +121,10 @@
     font-size: 20px;
     margin-top: -20px;
   }
-
-  .in-login input {
+  .in-input p{
+    font-size: 16px;
+  }
+  .in-input input {
     font-size: 14px;
     height: 35px;
   }
@@ -95,5 +132,6 @@
   .mybtn1 button {
     font-size: 16px;
     height: 38px;
+    color: white;
   }
 }

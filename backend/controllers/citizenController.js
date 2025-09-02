@@ -10,7 +10,6 @@ const citizenLogin = async (req, res) => {
             return res.status(400).json({ message: 'Invalid Email or Password' });
         }
 
-        // Check active status
         if (!user.isActive) {
             return res.status(403).json({ message: 'Your account is deactivated. Please contact admin.' });
         }
@@ -18,12 +17,18 @@ const citizenLogin = async (req, res) => {
         if (user.password !== password) {
             return res.status(400).json({ message: 'Invalid Email or Password' });
         }
+        if (user.activeToken) {
+            return res.status(403).json({ message: 'You are already logged in on another device. Please logout first.' });
+        }
 
         const token = jwt.sign(
             { id: user._id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
+
+        user.activeToken = token;
+        await user.save();
 
         res.status(200).json({
             message: 'Login Successful',
@@ -43,4 +48,48 @@ const citizenLogin = async (req, res) => {
     }
 };
 
-module.exports = { citizenLogin };
+const citizenLogout = async (req, res) => {
+  try {
+    let user = null;
+
+    // Case 1: token was valid → req.user is available
+    if (req.user?.id) {
+      user = await User.findById(req.user.id);
+    }
+
+    // Case 2: token expired but still in Authorization header
+    if (!user) {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (token) {
+        user = await User.findOne({ activeToken: token });
+      }
+    }
+
+    if (user) {
+      user.activeToken = null;
+      await user.save();
+    }
+
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (err) {
+    console.error("Logout error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+// controllers/citizenController.js
+const forceLogoutAll = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.activeToken = null;
+    await user.save();
+
+    res.json({ message: "All sessions logged out. Please login again." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+module.exports = { citizenLogin, citizenLogout, forceLogoutAll };

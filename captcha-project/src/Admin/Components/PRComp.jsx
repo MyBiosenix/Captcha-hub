@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import '../../Citizen/CSSFiles/payment.css'
+import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function PRComp() {
   const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const paymentsPerPage = 5;
 
   const fetchPayments = async () => {
     const token = localStorage.getItem('token');
@@ -39,6 +45,83 @@ function PRComp() {
     fetchPayments();
   }, []);
 
+  // 🔹 Filter payments
+  const filteredPayments = payments.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.paymentmode && p.paymentmode.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // 🔹 Pagination Logic
+  const indexOfLastPayment = currentPage * paymentsPerPage;
+  const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
+  const currentPayments = filteredPayments.slice(indexOfFirstPayment, indexOfLastPayment);
+  const totalPages = Math.ceil(filteredPayments.length / paymentsPerPage);
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  // ✅ Export to Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      currentPayments.map((p, i) => ({
+        "Sr. No.": indexOfFirstPayment + i + 1,
+        "Transaction ID": p._id,
+        "Name": p.name,
+        "Amount": p.reqamount,
+        "Payment Mode": p.paymentmode,
+        "Payment Status": p.paymentStatus || "Pending",
+        "Payment Date/Time": p.paymentDate
+          ? `${new Date(p.paymentDate).toLocaleDateString()} ${p.paymentTime || ""}`
+          : "-"
+      }))
+    );
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payments");
+    XLSX.writeFile(workbook, "PaymentRequests.xlsx");
+  };
+
+  // ✅ Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Payment Request List", 14, 15);
+
+    const tableColumn = [
+      "Sr. No.",
+      "Transaction ID",
+      "Name",
+      "Amount",
+      "Payment Mode",
+      "Status",
+      "Date / Time"
+    ];
+    const tableRows = [];
+
+    currentPayments.forEach((p, i) => {
+      tableRows.push([
+        indexOfFirstPayment + i + 1,
+        p._id,
+        p.name,
+        p.reqamount,
+        p.paymentmode,
+        p.paymentStatus || "Pending",
+        p.paymentDate
+          ? `${new Date(p.paymentDate).toLocaleDateString()} ${p.paymentTime || ""}`
+          : "-"
+      ]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("PaymentRequests.pdf");
+  };
+
   return (
     <div className='mypayments'>
       <div className='payment-header'>
@@ -53,13 +136,19 @@ function PRComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{ cursor: "pointer"}}>Excel</p>
+            <p onClick={exportToPDF} style={{ cursor: "pointer"}}>PDF</p>
           </div>
           <div className='search'>
-            <input type='text' placeholder='Search' />
+            <input 
+              type='text' 
+              placeholder='Search by name, ID, or mode' 
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }} 
+            />
           </div>
         </div>
 
@@ -79,10 +168,10 @@ function PRComp() {
               </tr>
             </thead>
             <tbody>
-              {payments.length > 0 ? (
-                payments.map((p, index) => (
+              {currentPayments.length > 0 ? (
+                currentPayments.map((p, index) => (
                   <tr key={p._id}>
-                    <td>{index + 1}</td>
+                    <td>{indexOfFirstPayment + index + 1}</td>
                     <td>{p._id}</td>
                     <td>{p.name}</td>
                     <td>{p.reqamount}</td>
@@ -117,11 +206,14 @@ function PRComp() {
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
           <div className='pagination'>
-            <button>{'«'}</button>
-            <button>{'‹'}</button>
-            <button>{'›'}</button>
-            <button>{'»'}</button>
+            <button onClick={() => goToPage(1)} disabled={currentPage === 1}>{'«'}</button>
+            <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>{'‹'}</button>
+            <span> Page {currentPage} of {totalPages} </span>
+            <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>{'›'}</button>
+            <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages}>{'»'}</button>
           </div>
         </div>
       </div>

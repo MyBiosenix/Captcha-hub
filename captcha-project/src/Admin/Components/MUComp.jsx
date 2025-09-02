@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import * as XLSX from "xlsx";       // 📊 Excel
+import jsPDF from "jspdf";          // 📄 PDF
+import autoTable from "jspdf-autotable";  // 📝 Table for PDF
 
 function MUComp() {
   const navigate = useNavigate();
@@ -12,10 +15,9 @@ function MUComp() {
 
   const token = localStorage.getItem('token');
   const admin = JSON.parse(localStorage.getItem('admin'));
-  const role = admin?.role
+  const role = admin?.role;
 
   const fetchUsers = async () => {
-    const token = localStorage.getItem('token');
     try {
       const res = await axios.get('http://localhost:5035/api/auth/user/all', {
         headers: { Authorization: `Bearer ${token}` }
@@ -28,7 +30,6 @@ function MUComp() {
   };
 
   const handleDeleteUser = async (id) => {
-    const token = localStorage.getItem('token');
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await axios.delete(`http://localhost:5035/api/auth/user/${id}`, {
@@ -43,7 +44,6 @@ function MUComp() {
   };
 
   const handleActivate = async (id) => {
-    const token = localStorage.getItem('token');
     try {
       await axios.put(`http://localhost:5035/api/auth/user/${id}/activate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -56,7 +56,6 @@ function MUComp() {
   };
 
   const handleDeactivate = async (id) => {
-    const token = localStorage.getItem('token');
     try {
       await axios.put(`http://localhost:5035/api/auth/user/${id}/deactivate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -88,6 +87,50 @@ function MUComp() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
+  // 📊 Export to Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredUsers.map((u, i) => ({
+      "Sr. No.": i + 1,
+      "Name": u.name,
+      "User Type": "Citizen",
+      "Email Id": u.email,
+      "Password": u.password,
+      "Status": u.isActive ? "Active" : "Inactive"
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "UsersList.xlsx");
+  };
+
+  // 📄 Export to PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("User List", 14, 15);
+
+    const tableColumn = ["Sr. No.", "Name", "User Type", "Email Id", "Password", "Status"];
+    const tableRows = [];
+
+    filteredUsers.forEach((u, i) => {
+      tableRows.push([
+        i + 1,
+        u.name,
+        "Citizen",
+        u.email,
+        u.password,
+        u.isActive ? "Active" : "Inactive"
+      ]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("UsersList.pdf");
+  };
+
   return (
     <div className='mypayments'>
       <div className='payment-header'>
@@ -96,7 +139,6 @@ function MUComp() {
       </div>
 
       <div className='inmy-payments'>
-
         <div className='buttontxt'>
           <h3>All User Type</h3>
           {role === 'superadmin' && (
@@ -106,10 +148,8 @@ function MUComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{ cursor: "pointer" }}>Excel</p>
+            <p onClick={exportToPDF} style={{ cursor: "pointer" }}>PDF</p>
           </div>
           <div className='search'>
             <input 
@@ -157,8 +197,6 @@ function MUComp() {
                       {role === 'superadmin' && (
                         <>
                           <button className='edit-btn' onClick={() => navigate('/admin/manage-user/add-user',{state : {userToEdit:u}})}>Edit</button>
-
-                      
                           <button className='delete-btn' onClick={() => handleDeleteUser(u._id)}>Delete</button>
                         </>
                       )}
@@ -179,7 +217,6 @@ function MUComp() {
             </tbody>
           </table>
 
-          {/* 🔹 Pagination Controls */}
           <div className='pagination'>
             <button onClick={() => goToPage(1)} disabled={currentPage === 1}>{'«'}</button>
             <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>{'‹'}</button>

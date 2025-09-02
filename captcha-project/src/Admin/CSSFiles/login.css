@@ -1,34 +1,37 @@
-.mylogin1{
+.mylogin1 {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    background: url('../../assets/login.jpg');
+    background: url('../../assets/login.jpg'); /* admin background */
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 }
-.login1{
+
+.login1 {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(10px);         
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.6);
+    /*backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);*/
     padding: 20px 40px;
-    border-radius: 5px;
+    border-radius: 25px;
     box-shadow: 2px 2px 6px black;
     width: 25%;
-    height: 60%;
+    height: 80%;
 }
-.login1 img{
-    width: 60%;
+
+.login1 img {
+    width: 70%;
     margin-bottom: -30px;
 }
-.in-login1{
+
+.in-login1 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -36,11 +39,26 @@
     gap: 10px;
     width: 100%;
 }
-.in-login1 h3{
+
+.in-login1 h3 {
     font-size: 25px;
     text-decoration: underline;
 }
-.in-login1 input{
+
+.in-input1 {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+}
+
+.in-input1 p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.in-input1 input {
     height: 40px;
     padding: 2px 8px;
     color: black;
@@ -49,15 +67,18 @@
     border-radius: 5px;
     border: 0.2px solid pink;
     background-color: white;
+    margin-top: 0;
 }
-.mybtn11{
+
+.mybtn11 {
     width: 100%;
     margin-top: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.mybtn11 button{
+
+.mybtn11 button {
     width: 100%;
     height: 40px;
     border-radius: 5px;
@@ -67,32 +88,66 @@
     justify-content: center;
     text-align: center;
     padding: 10px 20px;
+    background-color: blue;
+    color: white;
+    cursor: pointer;
 }
 
-@media (max-width: 450px) {
-  .login1 {
-    width: 80%;
-    height: auto;
-    padding: 15px 20px;
-  }
-
-  .login1 img {
+/* Password wrapper with eye toggle */
+.password-input-wrapper1 {
+    position: relative;
     width: 100%;
-    margin-bottom: 10px;
-  }
+}
 
-  .in-login1 h3 {
-    font-size: 20px;
-    margin-top: -20px;
-  }
+.password-input-wrapper1 input {
+    width: 100%;
+    padding-right: 40px; /* space for eye icon */
+    box-sizing: border-box;
+}
 
-  .in-login1 input {
-    font-size: 14px;
-    height: 35px;
-  }
+.toggle-password1 {
+    position: absolute;
+    top: 58%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+}
 
-  .mybtn11 button {
-    font-size: 16px;
-    height: 38px;
-  }
+.toggle-password1:hover {
+    color: #000;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 450px) {
+    .login1 {
+        width: 80%;
+        height: auto;
+        padding: 15px 20px;
+    }
+
+    .login1 img {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .in-login1 h3 {
+        font-size: 20px;
+        margin-top: -20px;
+    }
+
+    .in-input1 p {
+        font-size: 16px;
+    }
+
+    .in-input1 input {
+        font-size: 14px;
+        height: 35px;
+    }
+
+    .mybtn11 button {
+        font-size: 16px;
+        height: 38px;
+    }
 }

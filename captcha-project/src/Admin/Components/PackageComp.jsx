@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import * as XLSX from "xlsx";       // 📊 Excel
+import jsPDF from "jspdf";          // 📄 PDF
+import autoTable from "jspdf-autotable";  // 📝 Table for PDF
 
 function PackageComp() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // 🔹 Search state
+  const [searchTerm, setSearchTerm] = useState(""); 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -15,8 +18,6 @@ function PackageComp() {
   const role = admin?.role;
 
   const handlepackageadd = () => {
-    const token = localStorage.getItem('token');
-    const admin = localStorage.getItem('admin');
     if (token && admin) {
       navigate('/admin/package-type/package-form');
     } else {
@@ -25,7 +26,6 @@ function PackageComp() {
   };
 
   const fetchPackage = async () => {
-    const token = localStorage.getItem('token');
     try {
       const res = await axios.get('http://localhost:5035/api/types/all-packages', {
         headers: { Authorization: `Bearer ${token}` }
@@ -38,7 +38,6 @@ function PackageComp() {
   };
 
   const handleDeletePackage = async (id) => {
-    const token = localStorage.getItem('token');
     if (window.confirm('Are You Sure you Want to delete this Package Type?')) {
       try {
         await axios.delete(`http://localhost:5035/api/types/${id}`, {
@@ -73,6 +72,39 @@ function PackageComp() {
     }
   };
 
+  // 🔹 Export Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredPackages.map((pkg, i) => ({
+      "Sr. No.": i + 1,
+      "Package Type": pkg.packages
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Packages");
+    XLSX.writeFile(workbook, "PackageTypes.xlsx");
+  };
+
+  // 🔹 Export PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Package Type List", 14, 15);
+
+    const tableColumn = ["Sr. No.", "Package Type"];
+    const tableRows = [];
+
+    filteredPackages.forEach((pkg, i) => {
+      tableRows.push([i + 1, pkg.packages]);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("PackageTypes.pdf");
+  };
+
   return (
     <div className='mypayments'>
       <div className='payment-header'>
@@ -90,13 +122,10 @@ function PackageComp() {
 
         <div className='printform'>
           <div className='inprint'>
-            <p>Copy</p>
-            <p>Excel</p>
-            <p>PDF</p>
-            <p>Print</p>
+            <p onClick={exportToExcel} style={{ cursor: "pointer" }}>Excel</p>
+            <p onClick={exportToPDF} style={{ cursor: "pointer" }}>PDF</p>
           </div>
           <div className='search'>
-            {/* 🔹 Search Box */}
             <input
               type='text'
               placeholder='Search by package type'
@@ -108,7 +137,6 @@ function PackageComp() {
             />
           </div>
         </div>
-
 
         <div className='table-container'>
           <table className='payment-table'>
@@ -122,7 +150,6 @@ function PackageComp() {
                     <th>Delete</th>
                   </>
                 )}
-                
               </tr>
             </thead>
             <tbody>
@@ -150,15 +177,12 @@ function PackageComp() {
                           </button>
                         </td>
                       </>
-                      
                     )}
-
-                    
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className='no-data'>No data available in table</td>
+                  <td colSpan={role === "superadmin" ? 4 : 2} className='no-data'>No data available in table</td>
                 </tr>
               )}
             </tbody>
