@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
-import * as XLSX from "xlsx";         // 📊 Excel
-import jsPDF from "jspdf";            // 📄 PDF
+import * as XLSX from "xlsx";        
+import jsPDF from "jspdf";           
 import autoTable from "jspdf-autotable"; 
 
 function SubAdminComp() {
@@ -23,7 +23,7 @@ function SubAdminComp() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/admin/all', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/admin/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAdmins(res.data);
@@ -49,7 +49,7 @@ function SubAdminComp() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this admin?')) {
       try {
-        await axios.delete(`http://localhost:5035/api/auth/admin/${id}`, {
+        await axios.delete(`https://captcha-hub.onrender.com/api/auth/admin/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchAdmins();
@@ -60,7 +60,7 @@ function SubAdminComp() {
     }
   };
 
-  // 🔹 Export Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(admins.map((a, i) => ({
       "Sr. No.": i + 1,
@@ -75,7 +75,7 @@ function SubAdminComp() {
     XLSX.writeFile(workbook, "SubAdmins.xlsx");
   };
 
-  // 🔹 Export PDF
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Sub Admin List", 14, 15);

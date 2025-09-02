@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import * as XLSX from "xlsx";       // 📊 Excel
-import jsPDF from "jspdf";          // 📄 PDF
-import autoTable from "jspdf-autotable";  // 📝 Table for PDF
+import * as XLSX from "xlsx";      
+import jsPDF from "jspdf";         
+import autoTable from "jspdf-autotable"; 
 
 function MUComp() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ function MUComp() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/all', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -32,7 +32,7 @@ function MUComp() {
   const handleDeleteUser = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:5035/api/auth/user/${id}`, {
+        await axios.delete(`https://captcha-hub.onrender.com/api/auth/user/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchUsers();
@@ -45,7 +45,7 @@ function MUComp() {
 
   const handleActivate = async (id) => {
     try {
-      await axios.put(`http://localhost:5035/api/auth/user/${id}/activate`, {}, {
+      await axios.put(`https://captcha-hub.onrender.com/api/auth/user/${id}/activate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();
@@ -57,7 +57,7 @@ function MUComp() {
 
   const handleDeactivate = async (id) => {
     try {
-      await axios.put(`http://localhost:5035/api/auth/user/${id}/deactivate`, {}, {
+      await axios.put(`https://captcha-hub.onrender.com/api/auth/user/${id}/deactivate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();
@@ -71,13 +71,13 @@ function MUComp() {
     fetchUsers();
   }, []);
 
-  // 🔹 Filter users by searchTerm
+
   const filteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔹 Pagination Logic
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -87,7 +87,7 @@ function MUComp() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // 📊 Export to Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredUsers.map((u, i) => ({
       "Sr. No.": i + 1,

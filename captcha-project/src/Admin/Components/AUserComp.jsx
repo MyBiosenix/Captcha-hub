@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import axios from 'axios';
-import * as XLSX from "xlsx";       // 📊 Excel
-import jsPDF from "jspdf";          // 📄 PDF
-import autoTable from "jspdf-autotable";  // 📝 Table for PDF
+import * as XLSX from "xlsx";      
+import jsPDF from "jspdf";         
+import autoTable from "jspdf-autotable"; 
 
 function AUserComp() {
   const [users, setUsers] = useState([]);
@@ -14,7 +14,7 @@ function AUserComp() {
   const fetchActiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/active-users', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/active-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -28,13 +28,13 @@ function AUserComp() {
     fetchActiveUsers();
   }, []);
 
-  // 🔹 Filter users by searchTerm
+
   const filteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔹 Pagination Logic
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -44,7 +44,7 @@ function AUserComp() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // 📊 Export to Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredUsers.map((u, i) => ({
       "Sr. No.": i + 1,
@@ -58,7 +58,7 @@ function AUserComp() {
     XLSX.writeFile(workbook, "ActiveUsersList.xlsx");
   };
 
-  // 📄 Export to PDF
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Active Users List", 14, 15);
@@ -108,7 +108,7 @@ function AUserComp() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentPage(1); // reset to page 1 when searching
+                setCurrentPage(1);
               }} 
             />
           </div>
@@ -148,7 +148,7 @@ function AUserComp() {
             </tbody>
           </table>
 
-          {/* Pagination */}
+
           <div className='pagination'>
             <button onClick={() => goToPage(1)} disabled={currentPage === 1}>{'«'}</button>
             <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>{'‹'}</button>

@@ -27,10 +27,10 @@ function PackageFormComp() {
 
     try {
       if (packageToEdit) {
-        await axios.put(`http://localhost:5035/api/types/edit-package/${packageToEdit._id}`, { packages });
+        await axios.put(`https://captcha-hub.onrender.com/api/types/edit-package/${packageToEdit._id}`, { packages });
         alert('Package Type Updated Successfully');
       } else {
-        await axios.post('http://localhost:5035/api/types/package-type', { packages });
+        await axios.post('https://captcha-hub.onrender.com/api/types/package-type', { packages });
         alert('Package Type Added Successfully');
       }
       setPackages('');

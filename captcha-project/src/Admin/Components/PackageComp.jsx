@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import * as XLSX from "xlsx";       // 📊 Excel
-import jsPDF from "jspdf";          // 📄 PDF
-import autoTable from "jspdf-autotable";  // 📝 Table for PDF
+import * as XLSX from "xlsx";       
+import jsPDF from "jspdf";         
+import autoTable from "jspdf-autotable";
 
 function PackageComp() {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ function PackageComp() {
 
   const fetchPackage = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/types/all-packages', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/types/all-packages', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPackages(res.data);
@@ -40,7 +40,7 @@ function PackageComp() {
   const handleDeletePackage = async (id) => {
     if (window.confirm('Are You Sure you Want to delete this Package Type?')) {
       try {
-        await axios.delete(`http://localhost:5035/api/types/${id}`, {
+        await axios.delete(`https://captcha-hub.onrender.com/api/types/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPackage();
@@ -55,12 +55,12 @@ function PackageComp() {
     fetchPackage();
   }, []);
 
-  // 🔹 Filtered Packages
+
   const filteredPackages = packages.filter(pkg =>
     pkg.packages.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔹 Pagination applied on filtered data
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredPackages.slice(indexOfFirstItem, indexOfLastItem);
@@ -72,7 +72,7 @@ function PackageComp() {
     }
   };
 
-  // 🔹 Export Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredPackages.map((pkg, i) => ({
       "Sr. No.": i + 1,

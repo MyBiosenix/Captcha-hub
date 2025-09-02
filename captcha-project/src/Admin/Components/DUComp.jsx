@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import axios from 'axios';
-import * as XLSX from "xlsx";       // 📊 Excel
-import jsPDF from "jspdf";          // 📄 PDF
-import autoTable from "jspdf-autotable";  // 📝 Table for PDF
+import * as XLSX from "xlsx";       
+import jsPDF from "jspdf";         
+import autoTable from "jspdf-autotable"; 
 
 function DUComp() {
   const [users, setUsers] = useState([]);
@@ -14,7 +14,7 @@ function DUComp() {
   const fetchInactiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/inactive-users', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/inactive-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -28,13 +28,12 @@ function DUComp() {
     fetchInactiveUsers();
   }, []);
 
-  // 🔹 Filter users by search term
+
   const filteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔹 Pagination Logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -44,7 +43,7 @@ function DUComp() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // 📊 Export to Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredUsers.map((u, i) => ({
       "Sr. No.": i + 1,
@@ -58,7 +57,7 @@ function DUComp() {
     XLSX.writeFile(workbook, "InactiveUsersList.xlsx");
   };
 
-  // 📄 Export to PDF
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Inactive Users List", 14, 15);

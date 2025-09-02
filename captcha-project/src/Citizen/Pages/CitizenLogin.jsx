@@ -14,7 +14,6 @@ function CitizenLogin() {
 
   const navigate = useNavigate();
 
-  // 👇 Auto-login if token already exists
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -42,11 +41,10 @@ function CitizenLogin() {
 
     if (valid) {
       try {
-        const res = await axios.post('http://localhost:5035/api/citizen/login', {
+        const res = await axios.post('https://captcha-hub.onrender.com/api/citizen/login', {
           email, password
         });
 
-        // ✅ Save token + user details
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
 
@@ -80,7 +78,6 @@ function CitizenLogin() {
           </div>
           {emailError && <p className='error'>{emailError}</p>}
 
-          {/* Password Input with Eye Toggle */}
           <div className='in-input password-field'>
             <p>Password:</p>
             <div className="password-input-wrapper">

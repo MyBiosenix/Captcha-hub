@@ -3,14 +3,14 @@ import logo from '../../assets/logo.png'
 import '../CSSFiles/login.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👁️ imported
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function AdminLogin() {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // 👁️ toggle state
+    const [showPassword, setShowPassword] = useState(false); 
 
     const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ function AdminLogin() {
       
       if(valid){
         try{
-          const res = await axios.post('http://localhost:5035/api/auth/login',{
+          const res = await axios.post('https://captcha-hub.onrender.com/api/auth/login',{
             email, password
           });
           alert('Login Succesful');
@@ -71,7 +71,6 @@ function AdminLogin() {
             </div>
             {emailError && <p className='error'>{emailError}</p>}
 
-            {/* Password Input with Eye Toggle */}
             <div className='in-input password-field1'>
               <p>Password:</p>
               <div className="password-input-wrapper1">

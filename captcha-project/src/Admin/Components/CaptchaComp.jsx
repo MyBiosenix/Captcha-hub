@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import '../../Citizen/CSSFiles/payment.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import * as XLSX from "xlsx";       // 📊 Excel
-import jsPDF from "jspdf";          // 📄 PDF
-import autoTable from "jspdf-autotable";  // 📝 Table for PDF
+import * as XLSX from "xlsx";      
+import jsPDF from "jspdf";          
+import autoTable from "jspdf-autotable";  
 
 function CaptchaComp() {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ function CaptchaComp() {
 
   const fetchCaptchas = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/all-captchas', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/all-captchas', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCaptchas(res.data);
@@ -40,7 +40,7 @@ function CaptchaComp() {
   const handleDeleteCaptcha = async (id) => {
     if (window.confirm('Are You Sure you Want to delete this Captcha Type?')) {
       try {
-        await axios.delete(`http://localhost:5035/api/auth/${id}`, {
+        await axios.delete(`https://captcha-hub.onrender.com/api/auth/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchCaptchas();

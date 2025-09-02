@@ -16,7 +16,7 @@ function PRComp() {
   const fetchPayments = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/all-reqs', {
+      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/all-reqs', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPayments(res.data);
@@ -30,7 +30,7 @@ function PRComp() {
     const token = localStorage.getItem('token');
     if (window.confirm('Are you sure you want to delete this Payment Request?')) {
       try {
-        await axios.delete(`http://localhost:5035/api/auth/user/pay/${id}`, {
+        await axios.delete(`https://captcha-hub.onrender.com/api/auth/user/pay/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPayments();
@@ -45,14 +45,14 @@ function PRComp() {
     fetchPayments();
   }, []);
 
-  // 🔹 Filter payments
+
   const filteredPayments = payments.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (p.paymentmode && p.paymentmode.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // 🔹 Pagination Logic
+
   const indexOfLastPayment = currentPage * paymentsPerPage;
   const indexOfFirstPayment = indexOfLastPayment - paymentsPerPage;
   const currentPayments = filteredPayments.slice(indexOfFirstPayment, indexOfLastPayment);
@@ -62,7 +62,7 @@ function PRComp() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // ✅ Export to Excel
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       currentPayments.map((p, i) => ({
@@ -83,7 +83,7 @@ function PRComp() {
     XLSX.writeFile(workbook, "PaymentRequests.xlsx");
   };
 
-  // ✅ Export to PDF
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Payment Request List", 14, 15);
@@ -152,7 +152,6 @@ function PRComp() {
           </div>
         </div>
 
-        {/* Payments Table */}
         <div className='table-container'>
           <table className='payment-table'>
             <thead>
@@ -207,7 +206,6 @@ function PRComp() {
             </tbody>
           </table>
 
-          {/* Pagination */}
           <div className='pagination'>
             <button onClick={() => goToPage(1)} disabled={currentPage === 1}>{'«'}</button>
             <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>{'‹'}</button>

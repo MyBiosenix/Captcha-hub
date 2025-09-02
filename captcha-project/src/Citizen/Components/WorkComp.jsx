@@ -40,7 +40,7 @@ function WorkComp() {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(
-        'http://localhost:5035/api/auth/user/stats',
+        'https://captcha-hub.onrender.com/api/auth/user/stats',
         authHeader
       );
       if (data && typeof data.totalCaptcha === 'number') {
@@ -75,7 +75,7 @@ function WorkComp() {
   try {
     setCaptchaLoading(true); // show loader
     const { data } = await axios.get(
-      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `https://captcha-hub.onrender.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -86,7 +86,7 @@ function WorkComp() {
     handleDeactivated(err);
     console.error('Error fetching captcha:', err);
   } finally {
-    setCaptchaLoading(false); // hide loader after fetching
+    setCaptchaLoading(false); 
   }
 };
 
@@ -98,7 +98,7 @@ function WorkComp() {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        'http://localhost:5035/api/auth/user/verify',
+        'https://captcha-hub.onrender.com/api/auth/user/verify',
         { captchaId, answer: cleaned },
         {
           headers: {
@@ -147,8 +147,8 @@ function WorkComp() {
 
   useEffect(() => {
   const init = async () => {
-    await fetchStats();   // updates difficultyLevel
-    fetchCaptcha();       // fetch captcha once after stats are loaded
+    await fetchStats();   
+    fetchCaptcha();       
   };
   init();
 }, []);

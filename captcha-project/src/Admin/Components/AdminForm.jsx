@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // ✅ Import Axios
+import axios from 'axios'; 
 import '../../Citizen/CSSFiles/paymentform.css';
 
 function AdminForm() {
@@ -57,7 +57,7 @@ function AdminForm() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(
-        'http://localhost:5035/api/auth/admin/add-subadmin',
+        'https://captcha-hub.onrender.com/api/auth/admin/add-subadmin',
         { name, email, role: selectedOption, password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
