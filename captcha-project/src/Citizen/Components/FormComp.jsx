@@ -55,7 +55,6 @@ function FormComp() {
     <div className="mypf">
       <h2>Add Payment Request</h2>
       <form className="fiseforms" onSubmit={handleSubmit}>
-        {/* Basic Details */}
         <div className="fiform">
           <h3>Basic Details</h3>
           <div className="in-fiform">
@@ -66,7 +65,6 @@ function FormComp() {
           </div>
         </div>
 
-        {/* Bank Details */}
         <div className="seform">
           <h3>Bank Details</h3>
           <div className="in-seform">

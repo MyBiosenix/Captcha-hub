@@ -9,9 +9,11 @@ function DashComp() {
     rightCaptcha: 0,
     wrongCaptcha: 0,
     totalCaptcha: 0,
-    validTill: null
+    validTill: null,
+    packageName: '',
+    packagePrice: 0
   });
-  const [expiryInfo, setExpiryInfo] = useState('');
+
   const token = localStorage.getItem('token');
 
   const authHeader = {
@@ -19,26 +21,19 @@ function DashComp() {
     cache: 'no-store'
   };
 
-
   const fetchStats = async () => {
-  try {
-    const { data } = await axios.get(
-      'https://captcha-hub.onrender.com/api/auth/user/stats',
-      authHeader
-    );
-    console.log("📡 API Response:", data);
+    try {
+      const { data } = await axios.get(
+        'https://captcha-hub.onrender.com/api/auth/user/stats',
+        authHeader
+      );
+      console.log("📡 API Response:", data);
 
-    setStats(data);
-
-    if (data.validTill) {
-      setExpiryInfo(data.validTill);
-    } else {
-      setExpiryInfo("No expiry date set");
+      setStats(data);
+    } catch (e) {
+      console.error("Error fetching stats:", e.response?.data || e.message);
     }
-  } catch (e) {
-    console.error("Error fetching stats:", e.response?.data || e.message);
-  }
-};
+  };
 
   useEffect(() => {
     fetchStats();
@@ -95,18 +90,26 @@ function DashComp() {
 
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <p>
-            Expiry: <strong>
-              {stats.validTill 
-                ? new Date(stats.validTill).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
+            Subscription Plan:{" "}
+            <strong>
+              {stats.packageName
+                ? `${stats.packageName} `
+                : "No plan assigned"}
+            </strong>
+          </p>
+          <p>
+            Valid till:{" "}
+            <strong>
+              {stats.validTill
+                ? new Date(stats.validTill).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
                   })
                 : "No expiry date set"}
             </strong>
           </p>
         </div>
-
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ function WorkComp() {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(
-        'http://localhost:5035/api/auth/user/stats',
+        'https://captcha-hub.onrender.com/api/auth/user/stats',
         authHeader
       );
       if (data && typeof data.totalCaptcha === 'number') {
@@ -77,7 +77,7 @@ function WorkComp() {
   try {
     setCaptchaLoading(true);
     const { data } = await axios.get(
-      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `https://captcha-hub.onrender.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -100,7 +100,7 @@ function WorkComp() {
     setVerifying(true);
     try {
       const { data } = await axios.post(
-        'http://localhost:5035/api/auth/user/verify',
+        'https://captcha-hub.onrender.com/api/auth/user/verify',
         { captchaId, answer: cleaned },
         {
           headers: {
@@ -168,24 +168,21 @@ function WorkComp() {
   init();
 }, []);
 useEffect(() => {
-  // Prevent zoom with Ctrl + scroll
   const handleWheel = (e) => {
     if (e.ctrlKey) {
       e.preventDefault();
     }
   };
 
-  // Prevent zoom with Ctrl + '+', '-', or '='
   const handleKeyDown = (e) => {
     if (
       (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) ||
-      (e.metaKey && (e.key === '+' || e.key === '-' || e.key === '=')) // Mac support
+      (e.metaKey && (e.key === '+' || e.key === '-' || e.key === '=')) 
     ) {
       e.preventDefault();
     }
   };
 
-  // Prevent gesture zoom (Safari on iOS)
   const handleGestureStart = (e) => {
     e.preventDefault();
   };
@@ -284,7 +281,6 @@ useEffect(() => {
                 onContextMenu={(e) => e.preventDefault()} 
                 autoComplete="off"
                 spellCheck={false}
-                inputMode="none"
                 disabled={verifying || captchaLoading || loadingNewCaptcha}
               />
 

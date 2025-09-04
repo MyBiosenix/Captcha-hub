@@ -20,6 +20,7 @@ function CitizenLogin() {
       navigate("/citizen/dashboard");
     }
   }, [navigate]);
+  
 
   const [retryLogin, setRetryLogin] = useState(false);
 
@@ -43,10 +44,10 @@ const handleLogin = async (e) => {
 
   if (valid) {
     try {
-      const res = await axios.post('http://localhost:5035/api/citizen/login', {
+      const res = await axios.post('https://captcha-hub.onrender.com/api/citizen/login', {
         email,
         password,
-        force: retryLogin, // 👈 send force if retryLogin is true
+        force: retryLogin, 
       });
 
       localStorage.setItem('token', res.data.token);

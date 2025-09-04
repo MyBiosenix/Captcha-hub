@@ -48,12 +48,12 @@ function UserFormComp() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:5035/api/auth/admin/alladmins')
+      .get('https://captcha-hub.onrender.com/api/auth/admin/alladmins')
       .then((res) => setAdminsList(res.data))
       .catch((err) => console.error('Error Fetching Admins:', err));
 
     axios
-      .get('http://localhost:5035/api/types/allpackages')
+      .get('https://captcha-hub.onrender.com/api/types/allpackages')
       .then((res) => setPackagesList(res.data))
       .catch((err) => console.error('Error Fetching Packages:', err));
   }, []);
@@ -93,7 +93,7 @@ function UserFormComp() {
     try {
       if (userToEdit) {
         await axios.put(
-          `http://localhost:5035/api/auth/user/edit-user/${userToEdit._id}`,
+          `https://captcha-hub.onrender.com/api/auth/user/edit-user/${userToEdit._id}`,
           {
             name,
             email,
@@ -108,7 +108,7 @@ function UserFormComp() {
         alert('User Updated Successfully');
       } else {
         // CREATE new user
-        await axios.post('http://localhost:5035/api/auth/user/create-user', {
+        await axios.post('https://captcha-hub.onrender.com/api/auth/user/create-user', {
           name,
           email,
           mobile,

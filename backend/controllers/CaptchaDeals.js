@@ -175,9 +175,13 @@ exports.verifyCaptcha = async (req, res) => {
 
 exports.getMyStats = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select(
-      "totalCaptcha rightCaptcha wrongCaptcha totalEarnings validTill"
-    );
+    const user = await User.findById(req.user.id)
+      .select("totalCaptcha rightCaptcha wrongCaptcha totalEarnings validTill package")
+      .populate({
+        path: "package",
+        select: "packages"  // ✅ only fetch package name
+      });
+
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json({
@@ -185,13 +189,15 @@ exports.getMyStats = async (req, res) => {
       rightCaptcha: user.rightCaptcha || 0,
       wrongCaptcha: user.wrongCaptcha || 0,
       totalEarnings: user.totalEarnings || 0,
-      validTill: user.validTill ? user.validTill.toISOString() : null, // 👈 force ISO string
+      validTill: user.validTill ? user.validTill.toISOString() : null,
+      packageName: user.package?.packages || null   // ✅ only name, no price
     });
   } catch (e) {
     console.error("getMyStats error:", e.message);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
