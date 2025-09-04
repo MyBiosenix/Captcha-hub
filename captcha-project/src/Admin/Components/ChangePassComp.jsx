@@ -34,7 +34,7 @@ function ChangePassComp() {
       const token = localStorage.getItem('token');
       console.log('Token being sent:', token);
       const response = await axios.put(
-        'https://captcha-hub.onrender.com/api/auth/admin/change-password',
+        'http://localhost:5035/api/auth/admin/change-password',
         {
           currentPassword: password,
           newPassword: newpass,

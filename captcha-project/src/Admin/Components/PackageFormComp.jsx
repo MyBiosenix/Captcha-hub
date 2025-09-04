@@ -11,10 +11,12 @@ function PackageFormComp() {
   const packageToEdit = location.state?.packageToEdit || null;
 
   const [packages, setPackages] = useState('');
+  const [price, setPrice] = useState('');
 
   useEffect(() => {
       if (packageToEdit) {
         setPackages(packageToEdit.packages);
+         setPrice(packageToEdit.price);
       }
   }, [packageToEdit]);
  
@@ -27,10 +29,10 @@ function PackageFormComp() {
 
     try {
       if (packageToEdit) {
-        await axios.put(`https://captcha-hub.onrender.com/api/types/edit-package/${packageToEdit._id}`, { packages });
+        await axios.put(`http://localhost:5035/api/types/edit-package/${packageToEdit._id}`, { packages, price });
         alert('Package Type Updated Successfully');
       } else {
-        await axios.post('https://captcha-hub.onrender.com/api/types/package-type', { packages });
+        await axios.post('http://localhost:5035/api/types/package-type', { packages, price });
         alert('Package Type Added Successfully');
       }
       setPackages('');
@@ -49,10 +51,11 @@ function PackageFormComp() {
             
             <div className='in-seform'>
                 <input type='text' placeholder='Enter Name*' value={packages} onChange={(e) => setPackages(e.target.value)} required/>
+                <input type='number' placeholder='Enter Price(Per Captcha)' value={price} onChange={(e) => setPrice(e.target.value)} required/>
             </div>
 
             <div className='mybtns'>
-                <button className='water-button'>Cancel</button>
+                <button className='water-button' onClick={() => navigate('/admin/package-type')}>Cancel</button>
                 <button className='water-button2' onClick={handlePackageSubmit}>Submit</button>
             </div>
       </div>

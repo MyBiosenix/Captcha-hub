@@ -55,13 +55,13 @@ function EditSubAdminComp() {
       const token = localStorage.getItem('token');
 
       const res = await axios.put(
-        `https://captcha-hub.onrender.com/api/auth/admin/edit-subadmin/${editingAdmin._id}`,
+        `http://localhost:5035/api/auth/admin/edit-subadmin/${editingAdmin._id}`,
         { name, email, role: selectedOption },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       alert(res.data.message);
-      navigate(-1); // go back after update
+      navigate(-1);
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Error updating subadmin');

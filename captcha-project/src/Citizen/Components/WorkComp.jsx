@@ -9,6 +9,8 @@ function WorkComp() {
   const [captchaSVG, setCaptchaSVG] = useState('');
   const [captchaId, setCaptchaId] = useState('');
   const [answer, setAnswer] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [loadingNewCaptcha, setLoadingNewCaptcha] = useState(false);
   const [captchaLoading, setCaptchaLoading] = useState(false);
   const [stats, setStats] = useState({
     totalEarnings: 0,
@@ -40,7 +42,7 @@ function WorkComp() {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(
-        'https://captcha-hub.onrender.com/api/auth/user/stats',
+        'http://localhost:5035/api/auth/user/stats',
         authHeader
       );
       if (data && typeof data.totalCaptcha === 'number') {
@@ -73,9 +75,9 @@ function WorkComp() {
 
   const fetchCaptcha = async () => {
   try {
-    setCaptchaLoading(true); // show loader
+    setCaptchaLoading(true);
     const { data } = await axios.get(
-      `https://captcha-hub.onrender.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -95,10 +97,10 @@ function WorkComp() {
     const cleaned = answer.trim();
     if (!cleaned) return setMsg('Please enter the captcha.');
 
-    setLoading(true);
+    setVerifying(true);
     try {
       const { data } = await axios.post(
-        'https://captcha-hub.onrender.com/api/auth/user/verify',
+        'http://localhost:5035/api/auth/user/verify',
         { captchaId, answer: cleaned },
         {
           headers: {
@@ -119,21 +121,34 @@ function WorkComp() {
       } else if (data.message) {
         toast.info(data.message, { autoClose: 3000 });
       }
-      const sleepTime = getSleepTime(data.stats?.totalCaptcha || stats.totalCaptcha);
 
+      setVerifying(false);
+      setLoadingNewCaptcha(true);
+
+      const sleepTime = getSleepTime(data.stats?.totalCaptcha || stats.totalCaptcha);
       setTimeout(() => {
-        setLoading(false);
+        setLoadingNewCaptcha(false);
         fetchCaptcha();
       }, sleepTime);
 
     } catch (err) {
       handleDeactivated(err);
-      console.error('Error verifying captcha:', err);
-      setMsg('Something went wrong. Try again.');
-      toast.error("Something went wrong. Try again.", { autoClose: 3000 });
-      setLoading(false);
+
+      if (err.response && err.response.status === 410) {
+        toast.error("Captcha expired. Fetching a new one...", { autoClose: 3000 });
+        fetchCaptcha();
+      } else {
+        console.error('Error verifying captcha:', err);
+        setMsg('Something went wrong. Try again.');
+        toast.error("Something went wrong. Try again.", { autoClose: 3000 });
+      }
+
+      setVerifying(false);
+      setLoadingNewCaptcha(false);
     }
   };
+
+
 
   const handleRefresh = () => {
     const hundredBlock = Math.floor(stats.totalCaptcha / 100);
@@ -152,6 +167,40 @@ function WorkComp() {
   };
   init();
 }, []);
+useEffect(() => {
+  // Prevent zoom with Ctrl + scroll
+  const handleWheel = (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent zoom with Ctrl + '+', '-', or '='
+  const handleKeyDown = (e) => {
+    if (
+      (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=')) ||
+      (e.metaKey && (e.key === '+' || e.key === '-' || e.key === '=')) // Mac support
+    ) {
+      e.preventDefault();
+    }
+  };
+
+  // Prevent gesture zoom (Safari on iOS)
+  const handleGestureStart = (e) => {
+    e.preventDefault();
+  };
+
+  window.addEventListener("wheel", handleWheel, { passive: false });
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("gesturestart", handleGestureStart);
+
+  return () => {
+    window.removeEventListener("wheel", handleWheel);
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("gesturestart", handleGestureStart);
+  };
+}, []);
+
 
 
 /*
@@ -183,59 +232,83 @@ function WorkComp() {
         </div>
 
         <div className='captcha'>
-  {loading ? (
-    <div className="loader">Verifying...</div>
-  ) : captchaLoading ? (
-    <div className="loader">Loading captcha...</div>
-  ) : (
-    <>
-      {captchaSVG && (
-        <div
-          className="captcha-box"
-          dangerouslySetInnerHTML={{ __html: captchaSVG }}
-          onCopy={(e) => e.preventDefault()}
-          onCut={(e) => e.preventDefault()}
-          onPaste={(e) => e.preventDefault()}
-          onContextMenu={(e) => e.preventDefault()}
-          onDragStart={(e) => e.preventDefault()}
-        />
-      )}
-      <FaSyncAlt
-        style={{
-          cursor: refreshCount < 2 ? 'pointer' : 'not-allowed',
-          color: refreshCount < 2 ? 'black' : 'gray'
-        }}
-        onClick={refreshCount < 2 ? handleRefresh : null}
-        title='Refresh captcha'
-      />
-      <input
-        type="text"
-        placeholder="Enter Captcha"
-        value={answer}
-        onChange={(e) => setAnswer(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && submitCaptcha()}
-        disabled={loading || captchaLoading}
-      />
-      <button onClick={submitCaptcha} disabled={loading || captchaLoading}>
-        Submit
-      </button>
-    </>
-  )}
-</div>
+          {verifying ? (
+            <div className="loader">Verifying...</div>
+          ) : loadingNewCaptcha ? (
+            <div className="loader">Loading new captcha...</div>
+          ) : captchaLoading ? (
+            <div className="loader">Loading captcha...</div>
+          ) : (
+            <>
+              {captchaSVG && (
+                <div
+                  className="captcha-box"
+                  dangerouslySetInnerHTML={{ __html: captchaSVG }}
+                  onCopy={(e) => e.preventDefault()}
+                  onCut={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                  onContextMenu={(e) => e.preventDefault()}
+                  onDragStart={(e) => e.preventDefault()}
+                />
+              )}
+              <FaSyncAlt
+                style={{
+                  cursor: refreshCount < 2 ? 'pointer' : 'not-allowed',
+                  color: refreshCount < 2 ? 'black' : 'gray'
+                }}
+                onClick={refreshCount < 2 ? handleRefresh : null}
+                title='Refresh captcha'
+              />
+              <input
+                type="text"
+                placeholder="Enter Captcha"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                onKeyDown={(e) => {
+                  
+                  if (
+                    (e.ctrlKey || e.metaKey) &&
+                    ["c", "v", "x", "z", "y", "a"].includes(e.key.toLowerCase())
+                  ) {
+                    e.preventDefault();
+                  }
+
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitCaptcha();
+                  }
+                }}
+                onCopy={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                onContextMenu={(e) => e.preventDefault()} 
+                autoComplete="off"
+                spellCheck={false}
+                inputMode="none"
+                disabled={verifying || captchaLoading || loadingNewCaptcha}
+              />
+
+              <button onClick={submitCaptcha} disabled={verifying || captchaLoading || loadingNewCaptcha}>
+                Submit
+              </button>
+            </>
+          )}
+        </div>
+
 
       </div>
       <ToastContainer
-  position="top-right"
-  autoClose={3000}
-  hideProgressBar={false}
-  newestOnTop={true}
-  closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-  theme="colored"
-/>
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
 
     </div>
     

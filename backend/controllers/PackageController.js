@@ -2,24 +2,33 @@ const Package = require('../models/Package');
 
 const packagetype = async(req,res) => {
     try{
-        const{packages} = req.body;
+        const{packages, price} = req.body;
+
+        if (!packages || !price) {
+            return res.status(400).json({ message: "Package Type and Price are required" });
+        }
+
         const existing = await Package.findOne({packages});
 
         if(existing){
             return res.status(400).json({message:"Package Already Exists"});
         }
         const newPackage = await Package.create({
-            packages
+            packages,
+            price
         });
 
         res.status(200).json({message:"Package Added Succesfully",
             packages:{
-                _id:newPackage.id
+                _id:newPackage.id,
+                packages: newPackage.packages,
+                price: newPackage.price
             }
         });
     }
     catch(err){
         console.error(err.message);
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 }
 
@@ -57,10 +66,10 @@ const allPackages = async(req,res) => {
 const editPackages = async (req, res) => {
   try {
     const { id } = req.params;
-    const { packages } = req.body;
+    const { packages,price } = req.body;
 
-    if (!packages) {
-      return res.status(400).json({ message: "Package Type is required" });
+    if (!packages || !price) {
+      return res.status(400).json({ message: "Package Type and Price are required" });
     }
 
     const packageDoc = await Package.findById(id);
@@ -74,9 +83,10 @@ const editPackages = async (req, res) => {
     }
 
     packageDoc.packages = packages;
+    packageDoc.price = price
     await packageDoc.save();
 
-    res.json({ message: 'Package updated successfully', packages: packageDoc });
+    res.json({ message: 'Package updated successfully', Package: packageDoc });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error', error });

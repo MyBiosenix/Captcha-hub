@@ -125,25 +125,13 @@ exports.generateCaptcha = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
-
-
 exports.verifyCaptcha = async (req, res) => {
   try {
     const { captchaId, answer } = req.body;
     const userId = req.user.id;
 
-    if (!captchaId || !answer) {
-      return res
-        .status(400)
-        .json({ message: "Captcha ID and answer are required" });
-    }
-
     const captchaDoc = await Captcha.findById(captchaId);
-    if (!captchaDoc) {
-      return res.status(410).json({ message: "Captcha expired" });
-    }
+    if (!captchaDoc) return res.status(410).json({ message: "Captcha expired" });
 
     const expirationTime = 2 * 60 * 1000;
     if (Date.now() - captchaDoc.createdAt.getTime() > expirationTime) {
@@ -151,30 +139,31 @@ exports.verifyCaptcha = async (req, res) => {
     }
 
     const isCorrect =
-      String(answer || "").trim() ===
-      String(captchaDoc.text || "").trim();
+      String(answer || "").trim() === String(captchaDoc.text || "").trim();
 
-    const update = {
-      $inc: {
-        totalCaptcha: 1,
-        rightCaptcha: isCorrect ? 1 : 0,
-        wrongCaptcha: isCorrect ? 0 : 1,
-        totalEarnings: isCorrect ? 1 : 0,
-      },
-    };
+    // 👇 populate the package field to get price
+    const user = await User.findById(userId).populate("package", "price");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    const updatedUser = await User.findByIdAndUpdate(userId, update, {
-      new: true,
-    });
+    user.totalCaptcha += 1;
+
+    if (isCorrect) {
+      user.rightCaptcha += 1;
+      const packagePrice = user.package?.price || 0; // take price from package
+      user.totalEarnings += packagePrice;
+    } else {
+      user.wrongCaptcha += 1;
+    }
+
+    await user.save();
 
     res.json({
       success: isCorrect,
-      message: isCorrect ? "Captcha correct" : "Captcha incorrect",
       stats: {
-        totalCaptcha: updatedUser.totalCaptcha,
-        rightCaptcha: updatedUser.rightCaptcha,
-        wrongCaptcha: updatedUser.wrongCaptcha,
-        totalEarnings: updatedUser.totalEarnings,
+        totalCaptcha: user.totalCaptcha,
+        rightCaptcha: user.rightCaptcha,
+        wrongCaptcha: user.wrongCaptcha,
+        totalEarnings: user.totalEarnings,
       },
     });
   } catch (error) {
@@ -182,6 +171,7 @@ exports.verifyCaptcha = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.getMyStats = async (req, res) => {
   try {

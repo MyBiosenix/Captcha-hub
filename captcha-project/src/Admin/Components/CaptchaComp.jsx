@@ -27,7 +27,7 @@ function CaptchaComp() {
 
   const fetchCaptchas = async () => {
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/all-captchas', {
+      const res = await axios.get('http://localhost:5035/api/auth/all-captchas', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCaptchas(res.data);
@@ -40,7 +40,7 @@ function CaptchaComp() {
   const handleDeleteCaptcha = async (id) => {
     if (window.confirm('Are You Sure you Want to delete this Captcha Type?')) {
       try {
-        await axios.delete(`https://captcha-hub.onrender.com/api/auth/${id}`, {
+        await axios.delete(`http://localhost:5035/api/auth/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchCaptchas();
@@ -70,7 +70,6 @@ function CaptchaComp() {
     }
   };
 
-  // 🔹 Export Excel
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(filteredCaptchas.map((c, i) => ({
       "Sr. No.": i + 1,
@@ -82,7 +81,6 @@ function CaptchaComp() {
     XLSX.writeFile(workbook, "CaptchaTypes.xlsx");
   };
 
-  // 🔹 Export PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Captcha Type List", 14, 15);

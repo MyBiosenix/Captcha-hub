@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios'; 
 import '../../Citizen/CSSFiles/paymentform.css';
+import { useNavigate } from 'react-router-dom'
 
 function AdminForm() {
   const [selectedOption, setSelectedOption] = useState('');
@@ -14,10 +15,10 @@ function AdminForm() {
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [roleError, setRoleError] = useState('');
 
+  const navigate = useNavigate();
   const handleSubmit = async (e) => { 
     e.preventDefault();
 
-    // Reset errors
     setNameError('');
     setEmailError('');
     setPasswordError('');
@@ -57,7 +58,7 @@ function AdminForm() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(
-        'https://captcha-hub.onrender.com/api/auth/admin/add-subadmin',
+        'http://localhost:5035/api/auth/admin/add-subadmin',
         { name, email, role: selectedOption, password },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -129,7 +130,7 @@ function AdminForm() {
           </div>
 
           <div className='mybtns'>
-            <button className='water-button' type='button'>Cancel</button>
+            <button className='water-button' type='button' onClick={() => navigate('/admin/subadmin')}>Cancel</button>
             <button className='water-button2' onClick={handleSubmit}>Submit</button>
           </div>
         </div>

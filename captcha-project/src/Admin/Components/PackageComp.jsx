@@ -27,7 +27,7 @@ function PackageComp() {
 
   const fetchPackage = async () => {
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/types/all-packages', {
+      const res = await axios.get('http://localhost:5035/api/types/all-packages', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPackages(res.data);
@@ -40,7 +40,7 @@ function PackageComp() {
   const handleDeletePackage = async (id) => {
     if (window.confirm('Are You Sure you Want to delete this Package Type?')) {
       try {
-        await axios.delete(`https://captcha-hub.onrender.com/api/types/${id}`, {
+        await axios.delete(`http://localhost:5035/api/types/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPackage();
@@ -84,7 +84,6 @@ function PackageComp() {
     XLSX.writeFile(workbook, "PackageTypes.xlsx");
   };
 
-  // 🔹 Export PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Package Type List", 14, 15);
@@ -143,13 +142,15 @@ function PackageComp() {
             <thead>
               <tr>
                 <th>Sr. No.</th>
-                <th>Package Type</th>
+                <th>Package Name</th>
+                <th>Price(Per Captcha)</th>
                 { role === 'superadmin' && (
                   <>
                     <th>Edit</th>
                     <th>Delete</th>
                   </>
                 )}
+
               </tr>
             </thead>
             <tbody>
@@ -158,6 +159,7 @@ function PackageComp() {
                   <tr key={pkg._id}>
                     <td>{indexOfFirstItem + index + 1}</td>
                     <td>{pkg.packages}</td>
+                    <td>{pkg.price}</td>
                     { role === 'superadmin' && (
                       <>
                         <td>

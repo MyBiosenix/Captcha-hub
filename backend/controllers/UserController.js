@@ -24,9 +24,9 @@ async function sendAccountEmail(userEmail, subject, text, html) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Mail sent:", info.messageId);
+    console.log("Mail sent:", info.messageId);
   } catch (error) {
-    console.error("❌ Mail error:", error);
+    console.error("Mail error:", error);
   }
 }
 

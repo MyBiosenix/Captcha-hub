@@ -65,7 +65,6 @@ function Header() {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
       {isMobile && (
         <div className={`mobile-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <SideBar />

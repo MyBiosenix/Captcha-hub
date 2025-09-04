@@ -21,44 +21,56 @@ function CitizenLogin() {
     }
   }, [navigate]);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const [retryLogin, setRetryLogin] = useState(false);
 
-    setEmailError('');
-    setPasswordError('');
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    let valid = true;
+  setEmailError('');
+  setPasswordError('');
 
-    if (!emailRegex.test(email)) {
-      setEmailError('Invalid Email Address');
-      valid = false;
-    }
-    if (password.length < 5) {
-      setPasswordError('Invalid Password');
-      valid = false;
-    }
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  let valid = true;
 
-    if (valid) {
-      try {
-        const res = await axios.post('https://captcha-hub.onrender.com/api/citizen/login', {
-          email, password
-        });
+  if (!emailRegex.test(email)) {
+    setEmailError('Invalid Email Address');
+    valid = false;
+  }
+  if (password.length < 5) {
+    setPasswordError('Invalid Password');
+    valid = false;
+  }
 
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+  if (valid) {
+    try {
+      const res = await axios.post('http://localhost:5035/api/citizen/login', {
+        email,
+        password,
+        force: retryLogin, // 👈 send force if retryLogin is true
+      });
 
-        alert('Login Successful');
-        navigate('/citizen/dashboard');
-      } catch (err) {
-        if (err.response && err.response.data && err.response.data.message) {
-          alert(err.response.data.message);
-        } else {
-          alert('Login Failed');
-        }
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
+      alert('Login Successful');
+      navigate('/citizen/dashboard');
+    } catch (err) {
+      if (
+        err.response &&
+        err.response.data &&
+        err.response.data.requireForce
+      ) {
+        alert(err.response.data.message);
+        setRetryLogin(true);
+      } else if (err.response && err.response.data && err.response.data.message) {
+        alert(err.response.data.message);
+      } else {
+        alert('Login Failed');
       }
     }
-  };
+  }
+};
+
 
   return (
     <div className='mylogin'>
