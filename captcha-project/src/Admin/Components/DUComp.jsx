@@ -14,7 +14,7 @@ function DUComp() {
   const fetchInactiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/inactive-users', {
+      const res = await axios.get('https://captcha-hub-1.onrender.com/api/auth/user/inactive-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);

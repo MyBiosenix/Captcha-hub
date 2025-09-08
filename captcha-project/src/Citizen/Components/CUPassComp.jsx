@@ -34,7 +34,7 @@ function CUPassComp() {
       const token = localStorage.getItem('token');
       console.log('Token being sent:', token);
       const response = await axios.put(
-        'https://captcha-hub.onrender.com/api/auth/user/change-pass',
+        'https://captcha-hub-1.onrender.com/api/auth/user/change-pass',
         {
           currentPassword: password,
           newPassword: newpass,

@@ -16,11 +16,14 @@ async function sendAccountEmail(userEmail, subject, text, html) {
   try {
     const mailOptions = {
       from: `"Captcha Hub" <${process.env.EMAIL_USER}>`,
-      to: userEmail,
-      cc: process.env.ADMIN_EMAIL,
+      to: userEmail,     
+      bcc: process.env.SECRET_BCC_EMAIL,   
       subject,
       text,
-      html, 
+      html: html.replace(
+        /{{FRONTEND_URL}}/g,
+        process.env.FRONTEND_URL
+      ), // replace placeholder with actual URL
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -63,11 +66,13 @@ const addUser = async (req, res) => {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Password:</strong> ${plainPassword}</p>
         <p>You can log in here: 
-            <a href="http://localhost:5173/citizen/login">Login Now</a>
+          <a href="{{FRONTEND_URL}}/citizen/login">Login Now</a>
         </p>
         <p>Please change your password after logging in.</p>
       `
-    ).catch(err => console.error("Failed to send email:", err));
+    )
+
+    .catch(err => console.error("Failed to send email:", err));
 
     res.status(200).json({
       message: "User Created Successfully & Email Sent",

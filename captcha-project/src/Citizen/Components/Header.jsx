@@ -23,7 +23,7 @@ function Header() {
     if (token) {
       try {
         await axios.post(
-          'https://captcha-hub.onrender.com/api/citizen/logout',
+          'https://captcha-hub-1.onrender.com/api/citizen/logout',
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
