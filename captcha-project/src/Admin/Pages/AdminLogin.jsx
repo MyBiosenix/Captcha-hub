@@ -34,7 +34,7 @@ function AdminLogin() {
       
       if(valid){
         try{
-          const res = await axios.post('http://localhost:5035/api/auth/login',{
+          const res = await axios.post('https://captcha-hub.onrender.com/api/auth/login',{
             email, password
           });
           alert('Login Succesful');

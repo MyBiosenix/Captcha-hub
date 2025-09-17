@@ -16,14 +16,14 @@ function Header() {
 
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
-  const dropdownRef = useRef(null); // ✅ new ref for dropdown
+  const dropdownRef = useRef(null); 
 
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         await axios.post(
-          'http://localhost:5035/api/citizen/logout',
+          'https://captcha-hub.onrender.com/api/citizen/logout',
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
