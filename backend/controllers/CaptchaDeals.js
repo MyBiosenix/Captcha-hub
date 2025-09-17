@@ -68,7 +68,7 @@ function generateCustomCaptcha(text, difficultyLevel) {
 exports.generateCaptcha = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "totalCaptcha captchaDifficulty captchaLength"
+      "totalCaptcha captchaDifficulty captchaLength sleepTime"
     );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -76,8 +76,10 @@ exports.generateCaptcha = async (req, res) => {
 
     let totalCaptcha = user.totalCaptcha || 0;
 
-    let baseLength = user.captchaLength || 5;  
-    let baseDifficulty = user.captchaDifficulty || 1; 
+    // --- Base values from admin ---
+    let baseLength = user.captchaLength || 5;
+    let baseDifficulty = user.captchaDifficulty || 1;
+    let baseSleepTime = user.sleepTime || 0;
 
     let captchaLength = Math.min(baseLength + Math.floor(totalCaptcha / 500), 12);
 
@@ -88,6 +90,9 @@ exports.generateCaptcha = async (req, res) => {
       let extra = Math.floor((totalCaptcha - (12 - baseLength) * 500) / 500);
       difficultyLevel = baseDifficulty + extra;
     }
+
+    let increment = Math.floor(totalCaptcha / 500);
+    let effectiveSleepTime = baseSleepTime + increment;
 
     const charPresets = [
       "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789",
@@ -118,13 +123,15 @@ exports.generateCaptcha = async (req, res) => {
       svg: captcha.data,
       id: newCaptcha._id,
       difficulty: difficultyLevel,
-      length: captchaLength
+      length: captchaLength,
+      sleepTime: effectiveSleepTime   // 👈 return to frontend
     });
   } catch (error) {
     console.error("Error generating captcha:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 exports.verifyCaptcha = async (req, res) => {
   try {
     const { captchaId, answer } = req.body;
@@ -141,7 +148,6 @@ exports.verifyCaptcha = async (req, res) => {
     const isCorrect =
       String(answer || "").trim() === String(captchaDoc.text || "").trim();
 
-    // 👇 populate the package field to get price
     const user = await User.findById(userId).populate("package", "price");
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -149,13 +155,18 @@ exports.verifyCaptcha = async (req, res) => {
 
     if (isCorrect) {
       user.rightCaptcha += 1;
-      const packagePrice = user.package?.price || 0; // take price from package
+      const packagePrice = user.package?.price || 0;
       user.totalEarnings += packagePrice;
     } else {
       user.wrongCaptcha += 1;
     }
 
     await user.save();
+
+    // 🔑 Calculate effective sleep time here
+    let baseSleepTime = user.sleepTime || 0;
+    let increment = Math.floor((user.totalCaptcha || 0) / 500);
+    let effectiveSleepTime = baseSleepTime + increment;
 
     res.json({
       success: isCorrect,
@@ -164,6 +175,7 @@ exports.verifyCaptcha = async (req, res) => {
         rightCaptcha: user.rightCaptcha,
         wrongCaptcha: user.wrongCaptcha,
         totalEarnings: user.totalEarnings,
+        sleepTime: effectiveSleepTime   // 👈 return it
       },
     });
   } catch (error) {
@@ -173,16 +185,22 @@ exports.verifyCaptcha = async (req, res) => {
 };
 
 
+
 exports.getMyStats = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .select("totalCaptcha rightCaptcha wrongCaptcha totalEarnings validTill package")
+      .select("totalCaptcha rightCaptcha wrongCaptcha totalEarnings validTill package sleepTime captchaLength captchaDifficulty")
       .populate({
         path: "package",
-        select: "packages"  // ✅ only fetch package name
+        select: "packages"
       });
 
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    // --- SleepTime calculation ---
+    let baseSleepTime = user.sleepTime || 0;
+    let increment = Math.floor((user.totalCaptcha || 0) / 500);
+    let effectiveSleepTime = baseSleepTime + increment;
 
     res.json({
       totalCaptcha: user.totalCaptcha || 0,
@@ -190,13 +208,17 @@ exports.getMyStats = async (req, res) => {
       wrongCaptcha: user.wrongCaptcha || 0,
       totalEarnings: user.totalEarnings || 0,
       validTill: user.validTill ? user.validTill.toISOString() : null,
-      packageName: user.package?.packages || null   // ✅ only name, no price
+      packageName: user.package?.packages || null,
+      captchaLength: user.captchaLength || 5,
+      captchaDifficulty: user.captchaDifficulty || 1,
+      sleepTime: effectiveSleepTime   // 👈 return effective value
     });
   } catch (e) {
     console.error("getMyStats error:", e.message);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

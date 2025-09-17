@@ -40,29 +40,20 @@ function WorkComp() {
 };
 
   const fetchStats = async () => {
-    try {
-      const { data } = await axios.get(
-        'https://captcha-hub-1.onrender.com/api/auth/user/stats',
-        authHeader
-      );
-      if (data && typeof data.totalCaptcha === 'number') {
-        setStats(data);
-
-        const newLevel = Math.floor(data.totalCaptcha / 10) + 1;
-        if (newLevel !== difficultyLevel) {
-          setDifficultyLevel(newLevel);
-        }
-
-        const hundredBlock = Math.floor(data.totalCaptcha / 100);
-        if (refreshCount > 0 && data.totalCaptcha % 100 === 0) {
-          setRefreshCount(0);
-        }
-      }
-    } catch (e) {
-      handleDeactivated(e);
-      console.error('Error fetching stats:', e);
+  try {
+    const { data } = await axios.get(
+      'http://localhost:5035/api/auth/user/stats',
+      authHeader
+    );
+    if (data && typeof data.totalCaptcha === 'number') {
+      setStats(data);
+      return data;   
     }
-  };
+  } catch (e) {
+    handleDeactivated(e);
+    console.error('Error fetching stats:', e);
+  }
+};
 
   const getSleepTime = (totalCaptcha) => {
   let sleep = 1000 + Math.floor(totalCaptcha / 1000) * 500;
@@ -77,7 +68,7 @@ function WorkComp() {
   try {
     setCaptchaLoading(true);
     const { data } = await axios.get(
-      `https://captcha-hub-1.onrender.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -94,60 +85,60 @@ function WorkComp() {
 
 
   const submitCaptcha = async () => {
-    const cleaned = answer.trim();
-    if (!cleaned) return setMsg('Please enter the captcha.');
+  const cleaned = answer.trim();
+  if (!cleaned) return setMsg('Please enter the captcha.');
 
-    setVerifying(true);
-    try {
-      const { data } = await axios.post(
-        'https://captcha-hub-1.onrender.com/api/auth/user/verify',
-        { captchaId, answer: cleaned },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
+  setVerifying(true);
+  try {
+    const { data } = await axios.post(
+      'http://localhost:5035/api/auth/user/verify',
+      { captchaId, answer: cleaned },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         }
-      );
-
-      if (data.stats) setStats(data.stats);
-
-      if (typeof data.success !== "undefined") {
-        if (data.success) {
-          toast.success("Correct Captcha Entered!", { autoClose: 3000 });
-        } else {
-          toast.error("The Captcha is incorrect!", { autoClose: 3000 });
-        }
-      } else if (data.message) {
-        toast.info(data.message, { autoClose: 3000 });
       }
+    );
 
-      setVerifying(false);
-      setLoadingNewCaptcha(true);
+    if (data.stats) setStats(data.stats);
 
-      const sleepTime = getSleepTime(data.stats?.totalCaptcha || stats.totalCaptcha);
-      setTimeout(() => {
-        setLoadingNewCaptcha(false);
-        fetchCaptcha();
-      }, sleepTime);
-
-    } catch (err) {
-      handleDeactivated(err);
-
-      if (err.response && err.response.status === 410) {
-        toast.error("Captcha expired. Fetching a new one...", { autoClose: 3000 });
-        fetchCaptcha();
+    if (typeof data.success !== "undefined") {
+      if (data.success) {
+        toast.success("Correct Captcha Entered!", { autoClose: 3000 });
       } else {
-        console.error('Error verifying captcha:', err);
-        setMsg('Something went wrong. Try again.');
-        toast.error("Something went wrong. Try again.", { autoClose: 3000 });
+        toast.error("The Captcha is incorrect!", { autoClose: 3000 });
       }
-
-      setVerifying(false);
-      setLoadingNewCaptcha(false);
+    } else if (data.message) {
+      toast.info(data.message, { autoClose: 3000 });
     }
-  };
 
+    setVerifying(false);
+    setLoadingNewCaptcha(true);
+
+    const sleepTime = data.stats?.sleepTime || stats.sleepTime || 1000;
+
+    setTimeout(() => {
+      setLoadingNewCaptcha(false);
+      fetchCaptcha();
+    }, sleepTime);
+
+  } catch (err) {
+    handleDeactivated(err);
+
+    if (err.response && err.response.status === 410) {
+      toast.error("Captcha expired. Fetching a new one...", { autoClose: 3000 });
+      fetchCaptcha();
+    } else {
+      console.error('Error verifying captcha:', err);
+      setMsg('Something went wrong. Try again.');
+      toast.error("Something went wrong. Try again.", { autoClose: 3000 });
+    }
+
+    setVerifying(false);
+    setLoadingNewCaptcha(false);
+  }
+};
 
 
   const handleRefresh = () => {
@@ -161,17 +152,25 @@ function WorkComp() {
   };
 
   useEffect(() => {
-  const init = async () => {
-    await fetchStats();   
-    fetchCaptcha();       
-  };
-  init();
-}, []);
-useEffect(() => {
-  const handleWheel = (e) => {
-    if (e.ctrlKey) {
-      e.preventDefault();
-    }
+    const init = async () => {
+      const statsData = await fetchStats();
+
+      const sleepTime = statsData?.sleepTime || 1000;
+
+      setLoadingNewCaptcha(true);
+      setTimeout(() => {
+        setLoadingNewCaptcha(false);
+        fetchCaptcha();
+      }, sleepTime);
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
   };
 
   const handleKeyDown = (e) => {

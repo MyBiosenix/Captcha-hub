@@ -23,7 +23,7 @@ function Header() {
     if (token) {
       try {
         await axios.post(
-          'https://captcha-hub-1.onrender.com/api/citizen/logout',
+          'http://localhost:5035/api/citizen/logout',
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -50,7 +50,6 @@ function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // ✅ Detect clicks outside sidebar
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (sidebarOpen && sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -61,7 +60,6 @@ function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [sidebarOpen]);
 
-  // ✅ Detect clicks outside dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (showDropdown && dropdownRef.current && !dropdownRef.current.contains(e.target)) {

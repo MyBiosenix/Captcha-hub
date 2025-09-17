@@ -16,7 +16,7 @@ function PRComp() {
   const fetchPayments = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('https://captcha-hub-1.onrender.com/api/auth/user/all-reqs', {
+      const res = await axios.get('http://localhost:5035/api/auth/user/all-reqs', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPayments(res.data);
@@ -30,7 +30,7 @@ function PRComp() {
     const token = localStorage.getItem('token');
     if (window.confirm('Are you sure you want to delete this Payment Request?')) {
       try {
-        await axios.delete(`https://captcha-hub-1.onrender.com/api/auth/user/pay/${id}`, {
+        await axios.delete(`http://localhost:5035/api/auth/user/pay/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPayments();

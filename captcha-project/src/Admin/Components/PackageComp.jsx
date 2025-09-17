@@ -27,7 +27,7 @@ function PackageComp() {
 
   const fetchPackage = async () => {
     try {
-      const res = await axios.get('https://captcha-hub-1.onrender.com/api/types/all-packages', {
+      const res = await axios.get('http://localhost:5035/api/types/all-packages', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPackages(res.data);
@@ -40,7 +40,7 @@ function PackageComp() {
   const handleDeletePackage = async (id) => {
     if (window.confirm('Are You Sure you Want to delete this Package Type?')) {
       try {
-        await axios.delete(`https://captcha-hub-1.onrender.com/api/types/${id}`, {
+        await axios.delete(`http://localhost:5035/api/types/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchPackage();

@@ -28,7 +28,7 @@ function FormComp() {
     e.preventDefault();
 
     try {
-      const res = await axios.post('https://captcha-hub-1.onrender.com/api/auth/user/create-payment-req', formData);
+      const res = await axios.post('http://localhost:5035/api/auth/user/create-payment-req', formData);
       alert(res.data.message);
       setFormData({
         name: '',
