@@ -23,7 +23,7 @@ async function sendAccountEmail(userEmail, subject, text, html) {
       html: html.replace(
         /{{FRONTEND_URL}}/g,
         process.env.FRONTEND_URL
-      ), // replace placeholder with actual URL
+      ),
     };
 
     const info = await transporter.sendMail(mailOptions);

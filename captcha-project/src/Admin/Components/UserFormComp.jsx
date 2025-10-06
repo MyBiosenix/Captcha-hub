@@ -107,7 +107,7 @@ function UserFormComp() {
         );
         alert('User Updated Successfully');
       } else {
-        await axios.post('https://captcha-hub.onrender.com/api/auth/user/create-user', {
+        await axios.post('http://localhost:5035/api/auth/user/create-user', {
           name,
           email,
           mobile,
