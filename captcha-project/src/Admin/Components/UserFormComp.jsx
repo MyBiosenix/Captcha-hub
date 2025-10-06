@@ -59,82 +59,80 @@ function UserFormComp() {
   }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setNameError('');
-    setEmailError('');
-    setMobileError('');
-    setPriceError('');
+  setNameError('');
+  setEmailError('');
+  setMobileError('');
+  setPriceError('');
 
-    let valid = true;
+  let valid = true;
 
-    if (name.trim().length < 3) {
-      setNameError('Name must be at least 3 characters');
-      valid = false;
-    }
+  if (name.trim().length < 3) {
+    setNameError('Name must be at least 3 characters');
+    valid = false;
+  }
 
-    if (!emailRegex.test(email)) {
-      setEmailError('Invalid email address');
-      valid = false;
-    }
+  if (!emailRegex.test(email)) {
+    setEmailError('Invalid email address');
+    valid = false;
+  }
 
-    if (!/^\d{10}$/.test(mobile)) {
-      setMobileError('Mobile number must be exactly 10 digits');
-      valid = false;
-    }
+  if (!/^\d{10}$/.test(mobile)) {
+    setMobileError('Mobile number must be exactly 10 digits');
+    valid = false;
+  }
 
-    if (!price || isNaN(price) || Number(price) <= 0) {
-      setPriceError('Enter a valid price');
-      valid = false;
-    }
+  if (!price || isNaN(price) || Number(price) <= 0) {
+    setPriceError('Enter a valid price');
+    valid = false;
+  }
 
-    if (!valid) return;
+  if (!valid) return;
 
-    try {
-      if (userToEdit) {
-        await axios.put(
-          `https://captcha-hub.onrender.com/api/auth/user/edit-user/${userToEdit._id}`,
-          {
-            name,
-            email,
-            mobile,
-            admin,
-            package: packageType,
-            price: Number(price),
-            paymentmode: paymentMode,
-            validTill
-          }
-        );
-        alert('User Updated Successfully');
-      } else {
-        await axios.post('http://localhost:5035/api/auth/user/create-user', {
-          name,
-          email,
-          mobile,
-          admin,
-          package: packageType,
-          price: Number(price),
-          paymentmode: paymentMode,
-          validTill
-        });
-        alert('User Created Successfully');
+  try {
+    const url = userToEdit
+      ? `https://captcha-hub.onrender.com/api/auth/user/edit-user/${userToEdit._id}`
+      : `http://localhost:5035/api/auth/user/create-user`;
+
+    const response = await axios({
+      method: userToEdit ? "put" : "post",
+      url,
+      data: {
+        name,
+        email,
+        mobile,
+        admin,
+        package: packageType,
+        price: Number(price),
+        paymentmode: paymentMode,
+        validTill
       }
+    });
 
-      setName('');
-      setEmail('');
-      setMobile('');
-      setPrice('');
-      setAdmin('');
-      setPackageType('');
-      setPaymentMode('');
-      setValidTill('')
-
-      navigate('/admin/manage-user');
-    } catch (err) {
-      console.error('Error submitting form:', err);
-      alert('Something went wrong while saving user.');
+    if (response.data.emailStatus === "Email Failed") {
+      alert("User created, but email could not be sent. Please send manually.");
+    } else {
+      alert(userToEdit ? 'User Updated Successfully' : 'User Created & Email Sent Successfully');
     }
-  };
+
+    setName('');
+    setEmail('');
+    setMobile('');
+    setPrice('');
+    setAdmin('');
+    setPackageType('');
+    setPaymentMode('');
+    setValidTill('');
+
+    navigate('/admin/manage-user');
+
+  } catch (err) {
+    console.error('Error submitting form:', err);
+    alert('Something went wrong while saving user.');
+  }
+};
+
 
   return (
     <div className='mypf'>

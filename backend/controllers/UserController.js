@@ -39,11 +39,13 @@ const addUser = async (req, res) => {
     const { name, email, mobile, admin, package, price, paymentmode, validTill } = req.body;
     const plainPassword = getRandomPassword(5);
 
+    // 1. Check existing user
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(400).json({ message: 'User Already Exists' });
     }
 
+    // 2. Create user
     const newUser = await User.create({
       name,
       email,
@@ -56,26 +58,34 @@ const addUser = async (req, res) => {
       validTill: new Date(validTill)
     });
 
-    await sendAccountEmail(
-      email,
-      "Your Account Details - Captcha Hub",
-      `Your account has been created.\nEmail: ${email}\nPassword: ${plainPassword}`,
-      `
-        <h2>Welcome, ${name}!</h2>
-        <p>Your account has been created successfully.</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Password:</strong> ${plainPassword}</p>
-        <p>You can log in here: 
-          <a href="{{FRONTEND_URL}}/citizen/login">Login Now</a>
-        </p>
-        <p>Please change your password after logging in.</p>
-      `
-    )
+    // 3. Send email (But don't crash the API if it fails)
+    let emailStatus = "Email Sent";
 
-    .catch(err => console.error("Failed to send email:", err));
+    try {
+      await sendAccountEmail(
+        email,
+        "Your Account Details - Captcha Hub",
+        `Your account has been created.\nEmail: ${email}\nPassword: ${plainPassword}`,
+        `
+          <h2>Welcome, ${name}!</h2>
+          <p>Your account has been created successfully.</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Password:</strong> ${plainPassword}</p>
+          <p>You can log in here: 
+            <a href="{{FRONTEND_URL}}/citizen/login">Login Now</a>
+          </p>
+          <p>Please change your password after logging in.</p>
+        `
+      );
+    } catch (emailErr) {
+      console.error("Email sending failed:", emailErr);
+      emailStatus = "Email Failed";
+    }
 
-    res.status(200).json({
-      message: "User Created Successfully & Email Sent",
+    // 4. Final API Response
+    return res.status(200).json({
+      message: "User Created Successfully",
+      emailStatus,
       user: {
         _id: newUser.id,
         name: newUser.name,
@@ -90,9 +100,10 @@ const addUser = async (req, res) => {
 
   } catch (err) {
     console.error("Error while adding user:", err);
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ message: err.message });
   }
 };
+
 
 
 function getRandomPassword(length = 8) {
