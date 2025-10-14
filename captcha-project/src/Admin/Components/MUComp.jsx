@@ -11,7 +11,7 @@ function MUComp() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
+  const usersPerPage = 10;
 
   const token = localStorage.getItem('token');
   const admin = JSON.parse(localStorage.getItem('admin'));

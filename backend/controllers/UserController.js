@@ -39,13 +39,11 @@ const addUser = async (req, res) => {
     const { name, email, mobile, admin, package, price, paymentmode, validTill } = req.body;
     const plainPassword = getRandomPassword(5);
 
-    // 1. Check existing user
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(400).json({ message: 'User Already Exists' });
     }
 
-    // 2. Create user
     const newUser = await User.create({
       name,
       email,
@@ -58,34 +56,9 @@ const addUser = async (req, res) => {
       validTill: new Date(validTill)
     });
 
-    // 3. Send email (But don't crash the API if it fails)
-    let emailStatus = "Email Sent";
-
-    try {
-      await sendAccountEmail(
-        email,
-        "Your Account Details - Captcha Hub",
-        `Your account has been created.\nEmail: ${email}\nPassword: ${plainPassword}`,
-        `
-          <h2>Welcome, ${name}!</h2>
-          <p>Your account has been created successfully.</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Password:</strong> ${plainPassword}</p>
-          <p>You can log in here: 
-            <a href="{{FRONTEND_URL}}/citizen/login">Login Now</a>
-          </p>
-          <p>Please change your password after logging in.</p>
-        `
-      );
-    } catch (emailErr) {
-      console.error("Email sending failed:", emailErr);
-      emailStatus = "Email Failed";
-    }
-
-    // 4. Final API Response
-    return res.status(200).json({
+    // ✅ Respond immediately
+    res.status(200).json({
       message: "User Created Successfully",
-      emailStatus,
       user: {
         _id: newUser.id,
         name: newUser.name,
@@ -98,11 +71,31 @@ const addUser = async (req, res) => {
       }
     });
 
+    // ✅ NOW send email in background (this won't delay response)
+    sendAccountEmail(
+      email,
+      "Your Account Details - Captcha Hub",
+      `Your account has been created.\nEmail: ${email}\nPassword: ${plainPassword}`,
+      `
+        <h2>Welcome, ${name}!</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${plainPassword}</p>
+        <p>You can log in here: 
+          <a href="${process.env.FRONTEND_URL}/citizen/login">Login Now</a>
+        </p>
+        <p>Please change your password after logging in.</p>
+      `
+    ).catch((error) => {
+      console.error("Email sending failed in background:", error);
+    });
+
   } catch (err) {
     console.error("Error while adding user:", err);
     return res.status(500).json({ message: err.message });
   }
 };
+
 
 
 
