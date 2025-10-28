@@ -26,7 +26,7 @@ function EUserComp() {
   const fetchUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/admin/all-users', {
+      const res = await axios.get('https://api.captcha-google.com/api/auth/admin/all-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);

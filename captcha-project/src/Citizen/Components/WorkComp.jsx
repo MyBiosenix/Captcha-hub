@@ -42,7 +42,7 @@ function WorkComp() {
   const fetchStats = async () => {
   try {
     const { data } = await axios.get(
-      'https://captcha-hub.onrender.com/api/auth/user/stats',
+      'https://api.captcha-google.com/api/auth/user/stats',
       authHeader
     );
     if (data && typeof data.totalCaptcha === 'number') {
@@ -68,7 +68,7 @@ function WorkComp() {
   try {
     setCaptchaLoading(true);
     const { data } = await axios.get(
-      `https://captcha-hub.onrender.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `https://api.captcha-google.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -91,7 +91,7 @@ function WorkComp() {
   setVerifying(true);
   try {
     const { data } = await axios.post(
-      'https://captcha-hub.onrender.com/api/auth/user/verify',
+      'https://api.captcha-google.com/api/auth/user/verify',
       { captchaId, answer: cleaned },
       {
         headers: {

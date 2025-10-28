@@ -19,7 +19,7 @@ function MUComp() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/all', {
+      const res = await axios.get('https://api.captcha-google.com/api/auth/user/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -32,7 +32,7 @@ function MUComp() {
   const handleDeleteUser = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`https://captcha-hub.onrender.com/api/auth/user/${id}`, {
+        await axios.delete(`https://api.captcha-google.com/api/auth/user/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchUsers();
@@ -45,7 +45,7 @@ function MUComp() {
 
   const handleActivate = async (id) => {
     try {
-      await axios.put(`https://captcha-hub.onrender.com/api/auth/user/${id}/activate`, {}, {
+      await axios.put(`https://api.captcha-google.com/api/auth/user/${id}/activate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();
@@ -57,7 +57,7 @@ function MUComp() {
 
   const handleDeactivate = async (id) => {
     try {
-      await axios.put(`https://captcha-hub.onrender.com/api/auth/user/${id}/deactivate`, {}, {
+      await axios.put(`https://api.captcha-google.com/api/auth/user/${id}/deactivate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();

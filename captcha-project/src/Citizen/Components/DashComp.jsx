@@ -24,7 +24,7 @@ function DashComp() {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(
-        'https://captcha-hub.onrender.com/api/auth/user/stats',
+        'https://api.captcha-google.com/api/auth/user/stats',
         authHeader
       );
       console.log("📡 API Response:", data);

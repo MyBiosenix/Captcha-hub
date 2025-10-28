@@ -58,7 +58,7 @@ function AdminForm() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(
-        'https://captcha-hub.onrender.com/api/auth/admin/add-subadmin',
+        'https://api.captcha-google.com/api/auth/admin/add-subadmin',
         { name, email, role: selectedOption, password },
         { headers: { Authorization: `Bearer ${token}` } }
       );

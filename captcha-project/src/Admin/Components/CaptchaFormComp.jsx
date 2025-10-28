@@ -27,10 +27,10 @@ function CaptchaFormComp() {
 
     try {
       if (captchaToEdit) {
-        await axios.put(`https://captcha-hub.onrender.com/api/auth/edit-captcha/${captchaToEdit._id}`, { captcha });
+        await axios.put(`https://api.captcha-google.com/api/auth/edit-captcha/${captchaToEdit._id}`, { captcha });
         alert('Captcha Type Updated Successfully');
       } else {
-        await axios.post('https://captcha-hub.onrender.com/api/auth/captcha-type', { captcha });
+        await axios.post('https://api.captcha-google.com/api/auth/captcha-type', { captcha });
         alert('Captcha Type Added Successfully');
       }
       setCaptcha('');

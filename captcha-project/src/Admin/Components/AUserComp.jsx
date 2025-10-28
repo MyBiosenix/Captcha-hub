@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../../Citizen/CSSFiles/payment.css';
 import axios from 'axios';
-import * as XLSX from "xlsx";      
-import jsPDF from "jspdf";         
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable"; 
 
 function AUserComp() {
@@ -14,7 +14,7 @@ function AUserComp() {
   const fetchActiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('https://captcha-hub.onrender.com/api/auth/user/active-users', {
+      const res = await axios.get('https://api.captcha-google.com/api/auth/user/active-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);

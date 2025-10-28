@@ -28,7 +28,7 @@ function FormComp() {
     e.preventDefault();
 
     try {
-      const res = await axios.post('https://captcha-hub.onrender.com/api/auth/user/create-payment-req', formData);
+      const res = await axios.post('https://api.captcha-google.com/api/auth/user/create-payment-req', formData);
       alert(res.data.message);
       setFormData({
         name: '',
