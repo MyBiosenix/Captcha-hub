@@ -26,7 +26,7 @@ function EUserComp() {
   const fetchUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('https://api.captcha-google.com/api/auth/admin/all-users', {
+      const res = await axios.get('http://localhost:5035/api/auth/admin/all-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -116,6 +116,7 @@ function EUserComp() {
                 <th>Sr. No.</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Expiry</th>
                 <th>Right Captcha</th>
                 <th>Wrong Captcha</th>
                 <th>Amount</th>
@@ -133,6 +134,7 @@ function EUserComp() {
                     <td>{indexOfFirstItem + index + 1}</td>
                     <td>{u.name}</td>
                     <td>{u.email}</td>
+                    <td>{u.validTill ? new Date(u.validTill).toLocaleDateString() : '-'}</td>
                     <td>{u.rightCaptcha || 0}</td>
                     <td>{u.wrongCaptcha || 0}</td>
                     <td>{u.totalEarnings || 0}</td>
