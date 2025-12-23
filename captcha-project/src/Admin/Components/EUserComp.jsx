@@ -51,16 +51,26 @@ function EUserComp() {
 
     if (sortField) {
       temp.sort((a, b) => {
-        let valA = a[sortField] || 0;
-        let valB = b[sortField] || 0;
-
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
+        let valA = a[sortField];
+        let valB = b[sortField];
+        if (sortField === 'validTill') {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+        else if (typeof valA === 'string') {
+          valA = valA.toLowerCase();
+          valB = valB.toLowerCase();
+        } 
+        else {
+          valA = valA || 0;
+          valB = valB || 0;
+        }
 
         if (sortOrder === 'asc') return valA > valB ? 1 : -1;
-        else return valA < valB ? 1 : -1;
+        return valA < valB ? 1 : -1;
       });
     }
+
 
     setFilteredUsers(temp);
   };
@@ -101,6 +111,7 @@ function EUserComp() {
             <option value='rightCaptcha'>Right Captcha</option>
             <option value='wrongCaptcha'>Wrong Captcha</option>
             <option value='totalEarnings'>Amount</option>
+            <option value='validTill'>Expiry Date</option>
           </select>
 
           <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
