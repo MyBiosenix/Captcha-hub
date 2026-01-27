@@ -14,7 +14,7 @@ function SAUComp() {
   const fetchActiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5035/api/sub-admin/get-activeusers', {
+      const res = await axios.get('https://api.captcha-google.com/api/sub-admin/get-activeusers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);

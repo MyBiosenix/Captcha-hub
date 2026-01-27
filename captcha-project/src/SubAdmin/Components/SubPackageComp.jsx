@@ -27,7 +27,7 @@ function SubPackageComp() {
 
   const fetchPackage = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/types/all-packages', {
+      const res = await axios.get('https://api.captcha-google.com/api/types/all-packages', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPackages(res.data);

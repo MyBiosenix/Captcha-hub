@@ -34,7 +34,7 @@ function SubAdminLogin() {
       
       if(valid){
         try{
-          const res = await axios.post('http://localhost:5035/api/sub-admin/login',{
+          const res = await axios.post('https://api.captcha-google.com/api/sub-admin/login',{
             email, password
           });
           alert('Login Succesful');

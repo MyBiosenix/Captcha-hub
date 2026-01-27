@@ -14,7 +14,7 @@ function AdminDashComp() {
         const token = localStorage.getItem('token');
         if(token){
             try{
-                const res = await axios.get('http://localhost:5035/api/sub-admin/get-dashstats',{
+                const res = await axios.get('https://api.captcha-google.com/api/sub-admin/get-dashstats',{
                     headers:{Authorization: `Bearer ${token}`}
                 });
                 setStats(res.data);

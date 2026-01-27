@@ -15,7 +15,7 @@ function AdminDashComp() {
         const token = localStorage.getItem('token');
         if(token){
             try{
-                const res = await axios.get('http://localhost:5035/api/auth/admin/stats',{
+                const res = await axios.get('https://api.captcha-google.com/api/auth/admin/stats',{
                     headers:{Authorization: `Bearer ${token}`}
                 });
                 setStats(res.data);

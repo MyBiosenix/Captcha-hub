@@ -14,7 +14,7 @@ function SDUComp() {
   const fetchInactiveUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:5035/api/sub-admin/get-inactiveusers', {
+      const res = await axios.get('https://api.captcha-google.com/api/sub-admin/get-inactiveusers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);

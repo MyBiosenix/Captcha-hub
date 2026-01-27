@@ -23,7 +23,7 @@ function Header() {
     if (token) {
       try {
         await axios.post(
-          'http://localhost:5035/api/citizen/logout',
+          'https://api.captcha-google.com/api/citizen/logout',
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );

@@ -11,7 +11,7 @@ function PaymentComp() {
   const fetchPayments = async () => {
   const token = localStorage.getItem("token");
   try {
-    const res = await axios.get("http://localhost:5035/api/auth/user/user-reqs", {
+    const res = await axios.get("https://api.captcha-google.com/api/auth/user/user-reqs", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -30,7 +30,7 @@ function PaymentComp() {
     const token = localStorage.getItem('token');
     try {
       const { data } = await axios.get(
-        'http://localhost:5035/api/auth/user/stats',
+        'https://api.captcha-google.com/api/auth/user/stats',
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (data && typeof data.totalCaptcha === 'number') {

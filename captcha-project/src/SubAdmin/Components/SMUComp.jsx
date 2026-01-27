@@ -19,7 +19,7 @@ function SMUComp() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/sub-admin/get-users', {
+      const res = await axios.get('https://api.captcha-google.com/api/sub-admin/get-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -32,7 +32,7 @@ function SMUComp() {
 
   const handleActivate = async (id) => {
     try {
-      await axios.put(`http://localhost:5035/api/auth/user/${id}/activate`, {}, {
+      await axios.put(`https://api.captcha-google.com/api/auth/user/${id}/activate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();
@@ -44,7 +44,7 @@ function SMUComp() {
 
   const handleDeactivate = async (id) => {
     try {
-      await axios.put(`http://localhost:5035/api/auth/user/${id}/deactivate`, {}, {
+      await axios.put(`https://api.captcha-google.com/api/auth/user/${id}/deactivate`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers();
