@@ -8,6 +8,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const typeRoutes = require('./routes/typeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const citizenAuthRoutes = require('./routes/citizenAuthRoutes');
+const subadminRoutes = require('./routes/subAdminRoutes');
 
 ConnectDB();
 
@@ -22,6 +23,7 @@ app.use('/api/types',typeRoutes);
 app.use('/api/auth/user',userRoutes);
 
 app.use('/api/citizen', citizenAuthRoutes);
+app.use('/api/sub-admin',subadminRoutes);
 
 app.listen(PORT,() => {
     console.log(`Server Running on PORT:${PORT}`);

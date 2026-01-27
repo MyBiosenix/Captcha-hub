@@ -28,7 +28,7 @@ function UCFormComp() {
       const token = localStorage.getItem("token"); // get JWT token
 
       await axios.put(
-        `https://api.captcha-google.com/api/auth/admin/update-captcha-settings/${userToEdit._id}`,
+        `http://localhost:5035/api/auth/admin/update-captcha-settings/${userToEdit._id}`,
         {
           captchaLength: Number(captchaLength),
           captchaDifficulty: Number(captchaDifficulty),

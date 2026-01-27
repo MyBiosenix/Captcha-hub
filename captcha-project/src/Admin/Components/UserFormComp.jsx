@@ -48,12 +48,12 @@ function UserFormComp() {
 
   useEffect(() => {
     axios
-      .get('https://api.captcha-google.com/api/auth/admin/alladmins')
+      .get('http://localhost:5035/api/auth/admin/alladmins')
       .then((res) => setAdminsList(res.data))
       .catch((err) => console.error('Error Fetching Admins:', err));
 
     axios
-      .get('https://api.captcha-google.com/api/types/allpackages')
+      .get('http://localhost:5035/api/types/allpackages')
       .then((res) => setPackagesList(res.data))
       .catch((err) => console.error('Error Fetching Packages:', err));
   }, []);
@@ -93,7 +93,7 @@ function UserFormComp() {
     try {
       if (userToEdit) {
         await axios.put(
-          `https://api.captcha-google.com/api/auth/user/edit-user/${userToEdit._id}`,
+          `http://localhost:5035/api/auth/user/edit-user/${userToEdit._id}`,
           {
             name,
             email,
@@ -107,7 +107,7 @@ function UserFormComp() {
         );
         alert('User Updated Successfully');
       } else {
-        await axios.post('https://api.captcha-google.com/api/auth/user/create-user', {
+        await axios.post('http://localhost:5035/api/auth/user/create-user', {
           name,
           email,
           mobile,

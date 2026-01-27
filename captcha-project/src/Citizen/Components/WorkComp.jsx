@@ -42,7 +42,7 @@ function WorkComp() {
   const fetchStats = async () => {
   try {
     const { data } = await axios.get(
-      'https://api.captcha-google.com/api/auth/user/stats',
+      'http://localhost:5035/api/auth/user/stats',
       authHeader
     );
     if (data && typeof data.totalCaptcha === 'number') {
@@ -68,7 +68,7 @@ function WorkComp() {
   try {
     setCaptchaLoading(true);
     const { data } = await axios.get(
-      `https://api.captcha-google.com/api/auth/user/generate?difficulty=${difficultyLevel}`,
+      `http://localhost:5035/api/auth/user/generate?difficulty=${difficultyLevel}`,
       authHeader
     );
     setCaptchaSVG(data.svg);
@@ -91,7 +91,7 @@ function WorkComp() {
   setVerifying(true);
   try {
     const { data } = await axios.post(
-      'https://api.captcha-google.com/api/auth/user/verify',
+      'http://localhost:5035/api/auth/user/verify',
       { captchaId, answer: cleaned },
       {
         headers: {

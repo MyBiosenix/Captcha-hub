@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import logo from '../../assets/logo.png'
-import '../CSSFiles/login.css'
+import '../../Admin/CSSFiles/login.css'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function AdminLogin() {
+function SubAdminLogin() {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [password, setPassword] = useState('');
@@ -34,13 +34,13 @@ function AdminLogin() {
       
       if(valid){
         try{
-          const res = await axios.post('http://localhost:5035/api/auth/login',{
+          const res = await axios.post('http://localhost:5035/api/sub-admin/login',{
             email, password
           });
           alert('Login Succesful');
           localStorage.setItem('token',res.data.token);
-          localStorage.setItem('admin',JSON.stringify(res.data.admin));
-          navigate('/admin/dashboard');
+          localStorage.setItem('subadmin',JSON.stringify(res.data.subadmin));
+          navigate('/sub-admin/dashboard');
         }
         catch(err){
           if(err.response && err.response.data && err.response.data.message){
@@ -58,7 +58,7 @@ function AdminLogin() {
       <div className='login1'>
         <img src={logo} alt='Logo'/>
         <div className='in-login1'>
-            <h3>Admin Login</h3>
+            <h3>Sub-Admin Login</h3>
             <div className='in-input1'>
               <p>Email Id:</p>
               <input 
@@ -100,4 +100,4 @@ function AdminLogin() {
   )
 }
 
-export default AdminLogin
+export default SubAdminLogin

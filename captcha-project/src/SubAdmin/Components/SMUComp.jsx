@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";         
 import autoTable from "jspdf-autotable"; 
 
-function MUComp() {
+function SMUComp() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,12 +14,12 @@ function MUComp() {
   const usersPerPage = 10;
 
   const token = localStorage.getItem('token');
-  const admin = JSON.parse(localStorage.getItem('admin'));
-  const role = admin?.role;
+  const subadmin = JSON.parse(localStorage.getItem('subadmin'));
+  const role = subadmin?.role;
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5035/api/auth/user/all', {
+      const res = await axios.get('http://localhost:5035/api/sub-admin/get-users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -29,19 +29,6 @@ function MUComp() {
     }
   };
 
-  const handleDeleteUser = async (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await axios.delete(`http://localhost:5035/api/auth/user/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchUsers();
-      } catch (err) {
-        console.error(err.message);
-        alert('Error Deleting User');
-      }
-    }
-  };
 
   const handleActivate = async (id) => {
     try {
@@ -138,12 +125,6 @@ function MUComp() {
       </div>
 
       <div className='inmy-payments'>
-        <div className='buttontxt'>
-          <h3>All User Type</h3>
-          {role === 'superadmin' && (
-            <button className='request-btn' onClick={() => navigate('/admin/manage-user/add-user')}>+ Add User</button>
-          )}
-        </div>
 
         <div className='printform'>
           <div className='inprint'>
@@ -193,12 +174,6 @@ function MUComp() {
                       )}
                     </td>
                     <td className='mybttnns'>
-                      {role === 'superadmin' && (
-                        <>
-                          <button className='edit-btn' onClick={() => navigate('/admin/manage-user/add-user',{state : {userToEdit:u}})}>Edit</button>
-                          <button className='delete-btn' onClick={() => handleDeleteUser(u._id)}>Delete</button>
-                        </>
-                      )}
                       
                       {u.isActive ? (
                         <button className='deactivate-btn' onClick={() => handleDeactivate(u._id)}>Deactivate</button>
@@ -229,4 +204,4 @@ function MUComp() {
   );
 }
 
-export default MUComp;
+export default SMUComp;

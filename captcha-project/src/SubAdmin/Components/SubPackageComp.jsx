@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";         
 import autoTable from "jspdf-autotable";
 
-function PackageComp() {
+function SubPackageComp() {
   const navigate = useNavigate();
   const [packages, setPackages] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); 
@@ -37,19 +37,6 @@ function PackageComp() {
     }
   };
 
-  const handleDeletePackage = async (id) => {
-    if (window.confirm('Are You Sure you Want to delete this Package Type?')) {
-      try {
-        await axios.delete(`http://localhost:5035/api/types/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchPackage();
-      } catch (err) {
-        console.error(err.message);
-        alert('Error Deleting Package');
-      }
-    }
-  };
 
   useEffect(() => {
     fetchPackage();
@@ -203,4 +190,4 @@ function PackageComp() {
   );
 }
 
-export default PackageComp;
+export default SubPackageComp;

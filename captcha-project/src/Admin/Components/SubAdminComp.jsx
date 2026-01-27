@@ -23,7 +23,7 @@ function SubAdminComp() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await axios.get('https://api.captcha-google.com/api/auth/admin/all', {
+      const res = await axios.get('http://localhost:5035/api/auth/admin/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAdmins(res.data);
@@ -49,7 +49,7 @@ function SubAdminComp() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this admin?')) {
       try {
-        await axios.delete(`https://api.captcha-google.com/api/auth/admin/${id}`, {
+        await axios.delete(`http://localhost:5035/api/auth/admin/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchAdmins();

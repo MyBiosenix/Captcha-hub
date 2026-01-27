@@ -1,0 +1,110 @@
+const Admin = require('../models/Admin');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+
+exports.login = async(req,res) => {
+    try{
+        const {email, password} = req.body;
+        const admin = await Admin.findOne({email});
+
+        if(!admin){
+            return res.status(400).json({message:'Admin Does Not Exist'});
+        }
+        if(password !== admin.password){
+            return res.status(500).json({message:'Invalid Passwords'});
+        }
+
+        const token = jwt.sign(
+            {id:admin._id, role:admin.role},
+            process.env.JWT_SECRET,
+            {expiresIn:'1h'}
+        )
+
+        res.status(200).json({
+            message:'Login Succesful',
+            token,
+            subadmin:{
+                id:admin._id,
+                name:admin.name,
+                role:admin.role,
+                email:admin.email
+            }
+        })
+    }
+    catch(err){
+        console.error(err.message);
+        res.status(500).json({ message: 'server error'});
+    }
+}
+
+exports.getDashStats = async (req, res) => {
+  try {
+    const adminId = req.admin._id;
+
+    const totalUsers = await User.countDocuments({ admin: adminId });
+
+    const activeUsers = await User.countDocuments({
+      admin: adminId,
+      isActive: true
+    });
+
+    const inactiveUsers = await User.countDocuments({
+      admin: adminId,
+      isActive: false
+    });
+
+    res.status(200).json({
+    success: true,
+    totalUsers,
+    activeUsers,
+    inactiveUsers,
+    });
+
+
+  } catch (err) {
+    console.error("Dashboard Stats Error:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+exports.getMyUsers = async (req, res) => {
+  try {
+    const adminId = req.admin._id;
+
+    const users = await User.find({ admin: adminId })
+      .populate("package", "name")  
+      .select("-__v");
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.error("getMyUsers error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getActiveUsers = async(req,res) => {
+    try{
+        const adminId = req.admin._id;
+
+        const activeUsers = await User.find({admin:adminId, isActive:true})
+        .select('-__v');
+        res.status(200).json(activeUsers);
+    }
+    catch(err){
+        res.status(500).json({message:err.message});
+    }
+}
+
+exports.getInActiveUsers = async(req,res) => {
+    try{
+        const adminId = req.admin._id;
+
+        const InactiveUsers = await User.find({admin:adminId, isActive:false})
+        .select('-__v');
+        res.status(200).json(InactiveUsers);
+    }
+    catch(err){
+        res.status(500).json({message:err.message});
+    }
+}

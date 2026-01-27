@@ -27,6 +27,14 @@ import ActiveUsers from './Admin/Pages/ActiveUsers'
 import ESAPage from './Admin/Pages/ESAPage'
 import PaymentRequest from './Admin/Pages/PaymentRequest'
 
+import SubAdminLogin from './SubAdmin/Pages/SubAdminLogin';
+import SubAdminDashboard from './SubAdmin/Pages/SubAdminDashboard';
+import SubAdminPackages from './SubAdmin/Pages/SubAdminPackages';
+import SMU from './SubAdmin/Pages/SMU';
+import SAU from './SubAdmin/Pages/SAU';
+import SDU from './SubAdmin/Pages/SDU';
+
+
 function App() {
   return (
     <div>
@@ -58,6 +66,13 @@ function App() {
           <Route path='/admin/deactivated-users' element={<DUserList/>}/>
           <Route path='/admin/active-users' element={<ActiveUsers/>}/>
 
+
+          <Route path='/sub-admin/login' element={<SubAdminLogin/>}/>
+          <Route path='/sub-admin/dashboard' element={<SubAdminDashboard/>}/>
+          <Route path='/sub-admin/package-type' element={<SubAdminPackages/>}/>
+          <Route path='/sub-admin/manage-user' element={<SMU/>}/>
+          <Route path='/sub-admin/active-users' element={<SAU/>}/>
+          <Route path='/sub-admin/inactive-users' element={<SDU/>}/>
         </Routes>
       </Router>
     </div>
