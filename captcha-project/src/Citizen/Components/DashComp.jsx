@@ -14,6 +14,9 @@ function DashComp() {
     packagePrice: 0
   });
 
+  // ✅ NEW: timer state
+  const [timeLeft, setTimeLeft] = useState("");
+
   const token = localStorage.getItem('token');
 
   const authHeader = {
@@ -38,6 +41,43 @@ function DashComp() {
   useEffect(() => {
     fetchStats();
   }, []);
+
+  // ✅ NEW: countdown effect based on stats.validTill
+  useEffect(() => {
+    if (!stats?.validTill) {
+      setTimeLeft("");
+      return;
+    }
+
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const compute = () => {
+      const expiry = new Date(stats.validTill);
+
+      // If validTill is a date-only, count until end-of-day
+      expiry.setHours(23, 59, 59, 999);
+
+      const now = new Date();
+      const diff = expiry.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeLeft("Expired");
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / (3600 * 24));
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setTimeLeft(`${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+    };
+
+    compute();
+    const interval = setInterval(compute, 1000);
+    return () => clearInterval(interval);
+  }, [stats?.validTill]);
 
   return (
     <div className='mydashboard'>
@@ -92,12 +132,11 @@ function DashComp() {
           <p>
             Subscription Plan:{" "}
             <strong>
-              {stats.packageName
-                ? `${stats.packageName} `
-                : "No plan assigned"}
+              {stats.packageName ? `${stats.packageName} ` : "No plan assigned"}
             </strong>
           </p>
-          <p>
+
+          <p style={{ marginBottom: "6px" }}>
             Valid till:{" "}
             <strong>
               {stats.validTill
@@ -109,6 +148,13 @@ function DashComp() {
                 : "No expiry date set"}
             </strong>
           </p>
+
+          {/* ✅ Timer below validity */}
+          {stats.validTill && (
+            <p style={{ fontWeight: 700 }}>
+              Time Left: {timeLeft}
+            </p>
+          )}
         </div>
       </div>
     </div>
